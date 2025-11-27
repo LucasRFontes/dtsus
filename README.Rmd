@@ -20,17 +20,19 @@ knitr::opts_chunk$set(
 
 The goal of dtsus is to ...
 
-- Ideias de funções:
-  - Função para verificar as bases disponiveis
-  - Função para Download das Bases com opção de salvar no dispositivo
-  - Função para abrir as bases no computador com opção de filtro e seleção de colunas
+- Ideias de funçao
+- Download dos microdados do DATASUS
+- Log com Controle das bases que foram baixas
+- Opção de utilizar as bases salvas no PC
+- interface grafica
 
 ## Installation
 
-You can install the development version of dtsus like so:
+You can install the development version of dtsus from [GitHub](https://github.com/) with:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+# install.packages("pak")
+pak::pak("LucasRFontes/dtsus")
 ```
 
 ## Example
@@ -38,7 +40,7 @@ You can install the development version of dtsus like so:
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
-library(dtsus)
+#library(dtsus)
 ## basic example code
 ```
 
