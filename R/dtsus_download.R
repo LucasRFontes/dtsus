@@ -1,20 +1,20 @@
 # INSERIR VALIDADORES DE FONTE, TIPO, DATA
 validar_data_aaaamm <- function(x) {
 
-  # Remover espa?os antes/depois
+  # Remover espacos antes/depois
   x <- trimws(x)
-  # Verificar se tem exatamente 6 d?gitos
+  # Verificar se tem exatamente 6 digitos
   if (!grepl("^[0-9]{6}$", x)) {
     stop("A data deve estar no formato AAAAMM (ex: 202412).")
   }
 
-  # Separar ano e m?s
+  # Separar ano e mes
   ano <- substr(x, 1, 4)
   mes <- substr(x, 5, 6)
 
-  # Validar m?s
+  # Validar mes
   if (!(mes %in% sprintf("%02d", 1:12))) {
-    stop("O m?s deve ser entre 01 e 12.")
+    stop("O mes deve ser entre 01 e 12.")
   }
 
   # Retornar como lista ou tibble
@@ -39,7 +39,7 @@ sequencia_data <- function(Data_inicio,Data_fim){
     if(inicio > fim){
       stop("Data inicial maior que a final.")}
 
-    # gera sequ?ncia mensal
+    # gera sequencia mensal
     seq_datas <- seq(inicio, fim, by = "month")
 
   }else{
@@ -53,6 +53,21 @@ sequencia_data <- function(Data_inicio,Data_fim){
 
 
 
+#' Fetch and read microdata files from DATASUS
+#'
+#' @param fonte A string. The abbreviation of the health information system to be accessed.
+#' @param tipo A string. The abbreviation of the file to be accessed.
+#' @param uf A string or a vector of strings. By default ...
+#' @param Data_inicio Start year and month in the format yyyymm.
+#' @param Data_fim End year and month in the format yyyymm.
+#' @param origem I don't know..
+#'
+#' @returns fazer
+#' @export
+#'
+#' @examples fazer
+#'
+#'
 dtsus_download <- function(
     fonte = NA,
     tipo = NA,
@@ -174,6 +189,8 @@ dtsus_download <- function(
 
 
     }
+  }
+}
 
 
 
