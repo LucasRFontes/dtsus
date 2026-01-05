@@ -1,20 +1,20 @@
 # INSERIR VALIDADORES DE FONTE, TIPO, DATA
 validar_data_aaaamm <- function(x) {
 
-  # Remover espacos antes/depois
+  # Remover espa?os antes/depois
   x <- trimws(x)
-  # Verificar se tem exatamente 6 digitos
+  # Verificar se tem exatamente 6 d?gitos
   if (!grepl("^[0-9]{6}$", x)) {
     stop("A data deve estar no formato AAAAMM (ex: 202412).")
   }
 
-  # Separar ano e mes
+  # Separar ano e m?s
   ano <- substr(x, 1, 4)
   mes <- substr(x, 5, 6)
 
-  # Validar mes
+  # Validar m?s
   if (!(mes %in% sprintf("%02d", 1:12))) {
-    stop("O mes deve ser entre 01 e 12.")
+    stop("O m?s deve ser entre 01 e 12.")
   }
 
   # Retornar como lista ou tibble
@@ -39,7 +39,7 @@ sequencia_data <- function(Data_inicio,Data_fim){
     if(inicio > fim){
       stop("Data inicial maior que a final.")}
 
-    # gera sequencia mensal
+    # gera sequ?ncia mensal
     seq_datas <- seq(inicio, fim, by = "month")
 
   }else{
@@ -53,28 +53,17 @@ sequencia_data <- function(Data_inicio,Data_fim){
 
 
 
-#' Fetch and read microdata files from DATASUS
-#'
-#' @param fonte A string. The abbreviation of the health information system to be accessed.
-#' @param tipo A string. The abbreviation of the file to be accessed.
-#' @param uf A string or a vector of strings. By default ...
-#' @param Data_inicio Start year and month in the format yyyymm.
-#' @param Data_fim End year and month in the format yyyymm.
-#' @param origem I don't know..
-#'
-#' @returns fazer
-#' @export
-#'
-#' @examples fazer
-#'
-#'
 dtsus_download <- function(
     fonte = NA,
     tipo = NA,
     uf = NA,
-    Data_inicio = 202308,
+    Data_inicio = 202508,
     Data_fim = 202512,
-    origem = 'data.sus'){
+    origem = 'data.sus',
+    colunas = list(),
+    save.dbc = F,
+    pasta.dbc = NA,
+    open = T){
 
 
   # Validando se a data foi preenchida corretamente
@@ -127,6 +116,8 @@ dtsus_download <- function(
       }
       if(tipo %in% c( "DC","EE","EF","EP","EQ","GM","HB","IN","LT","PF","RC","SR","ST")){
         lnk <- paste0(lnk,tipo,'/')
+      }else{
+        return('ERRO - tipo invalido')
       }
     }
 
@@ -148,10 +139,11 @@ dtsus_download <- function(
 
     }, fonte = files$fonte, ano = substr(files$sequencia_datas, 1, 4))
 
-    files$lnk_final <- paste0(files$lnk,files$lnk_compl) # Criando o link final
+    files$lnk_final <- ifelse(is.na(files$lnk_compl),files$lnk,paste0(files$lnk,files$lnk_compl))# Criando o link final
     files$nome_arquivo <- paste0(files$tipo,files$uf,substr(files$sequencia_datas,3,6)) # Criando o nome do arquivo
 
     lista_arquivos <- data.frame() # lista dos arquivos a ser baixados
+
     # Verificando quais arquivos estao disponiveis
     for(l in unique(files$lnk_final)){
       arquivos <- unlist(strsplit(RCurl::getURL(url = l, ftp.use.epsv = TRUE, dirlistonly = TRUE), "\n"))
@@ -177,22 +169,74 @@ dtsus_download <- function(
     # Realizando o download das bases
     files$lnk_final <- paste0(files$lnk_final,files$arquivos)
 
-
-    for (l in files$lnk_final) {
-
-      temp <- tempfile(fileext = '.dbc') # Arquivo temporario que recebe o download
-      utils::download.file(l, destfile = temp, mode = 'wb', method = 'libcurl')
-      data <- read.dbc::read.dbc(temp,as.is = T)
-      unlink(temp)
-      gc()
-      return(data)
-
-
+    # Validando a pasta para receber o dbc
+    if (isTRUE(save.dbc)) {
+      if (is.na(pasta.dbc)) {
+        pasta.dbc <- getwd()
+      }
+      if (!dir.exists(pasta.dbc)) {
+        message("Pasta DBC não encontrada. Salvando em: ", getwd())
+        pasta.dbc <- getwd()
+      }
     }
-  }
-}
 
 
 
+    # inicializações seguras
+    files$status_downlad <- NA_character_
+    files$status_load    <- NA_character_
+    files$dt_hr          <- as.POSIXct(NA, tz = "America/Sao_Paulo")
 
+    data_list <- list()
+    idx <- which(!is.na(files$arquivos))
 
+    for (i in idx) {
+
+      l <- files$lnk_final[i]
+      data_hora <- Sys.time()
+      temp <- NULL
+
+      tryCatch({
+
+        temp <- tempfile(fileext = ".dbc")
+        download.file(l, temp, mode = "wb", method = "libcurl")
+
+        if (isTRUE(save.dbc)) {
+          file.copy(
+            temp,
+            file.path(pasta.dbc, basename(files$arquivos[i])),
+            overwrite = TRUE
+          )
+        }
+
+        files$status_downlad[i] <- "Download realizado"
+        cat("✔ Download realizado:", l, "\n")
+
+      }, error = function(e) {
+        cat("✖ Erro em:", l, "->", conditionMessage(e), "\n")
+      })
+
+      if (is.na(files$status_downlad[i])) {
+        files$status_downlad[i] <- "Erro"
+      }
+
+      files$dt_hr[i] <- data_hora
+
+      if (isTRUE(open) && files$status_downlad[i] == "Download realizado") {
+        tryCatch({
+          data_temp <- read.dbc::read.dbc(temp, as.is = TRUE)
+          data_list[[length(data_list) + 1]] <- data_temp
+          cat("Arquivo", l, "lido\n")
+        }, error = function(e) {
+          cat("Arquivo", l, "não carregado\n")
+        })
+      }
+
+      if (!is.null(temp) && file.exists(temp)) unlink(temp)
+      gc()
+    }
+
+    # junta tudo de uma vez (rápido e seguro)
+    data <- if(length(data_list) > 0){
+      do.call(rbind, data_list)
+    }
