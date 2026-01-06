@@ -17,29 +17,33 @@ dts_validate_fonte_tipo <- function(fonte = NULL, tipo = NULL){
     CNES = c("DC","EE","EF","EP","EQ","GM","HB","IN","LT","PF","RC","SR","ST"),
     ESUS = 'DCCR',
     PCE = 'PCE',
+    PNI = c("CPNI","DPNI"),
     PO = 'PO',
     RESP = 'RESP',
-    SIA = c("PA","AB","ABO","ACF","AD","AM","AN","AQ","AR","ATD","PS","SAD"),
-    SIH = c("RD","RJ","SP","CH","CM","ER","MT"),
-    SIM = c("DOEXT","DOFET","DOINF","DOMAT","DOREXT","DO","DOR"),
-    SINAN = c("ACBI","ACGR","ANIM","ANTR","BOTU","CANC","CHAG","CHIK","COLE","COQU","DCRJ","DENG","DERM","DIFT","ESPO","ESQU","FMAC","FTIF","HANS","HANT","IEXO",
-              "LEIV","LEPT","LER","LERD","LTAN","MALA","MENI","MENT","NTRA","PAIR","PEST","PFAN","PNEU","RAIV","ROTA","SDTA","TETA","TETN","TOXC","TOXG","TRAC",
-              "TUBE","VIOL","ZIKA","AIDA","AIDC","EXAN","HEPA","HIVA","HIVC","HIVE","HIVG","SIFA","SIFC","SIFG","SRC","VARC"),
+    SIA = c("AB","ABO","ACF","AD","AM","AN","AQ","AR","ATD","PA","PS","SAD"),
+    SIH = c("CH","CM","ER","RD","RJ","SP","MT"),
+    SIM = c("DO","DOEXT","DOFET","DOINF","DOMAT","DOR","DOREXT"),
+    SINAN = c("ACBI","ACGR","AIDA","AIDC","ANIM","ANTR","BOTU","CANC","CHAG",
+              "CHIK","COLE","COQU","DCRJ","DENG","DERM","DIFT","ESPO","ESQU",
+              "EXAN","FMAC","FTIF","HANS","HANT","HEPA","HIVA","HIVC","HIVE",
+              "HIVG","IEXO","INFL","LEIV","LEPT","LER", "LERD","LTAN","MALA",
+              "MENI","MENT","NTRA","PAIR","PEST","PFAN","PNEU","RAIV","ROTA",
+              "SDTA","SIFA","SIFC","SIFG","SRC", "TETA","TETN","TOXC","TOXG",
+              "TRAC","TUBE","VARC","VIOL","ZIKA"),
     SINASC = c("DN","DNEX"),
     SISCOLO = c("CC","HC"),
     SISMAMA = c("CM","HM","MM"),
-    SISPRENATAL = 'PN',
-    PNI = c("CPNI","DPNI")
+    SISPRENATAL = 'PN'
   )
 
-  # Validação da fonte
+  # Validacao da fonte
   if (!fonte %in% names(base_mappimg)) {
     stop('ERRO - Foi selecionada uma FONTE inválida.')
   }
 
   tp <- base_mappimg[[fonte]]
 
-  # Se só existir um tipo possível
+  # Se so existir um tipo possível
   if (length(tp) == 1) {
     tipo <- tp
 
@@ -95,18 +99,18 @@ dts_validate_uf <- function(uf =NULL){
 # Data
 dts_validate_data <- function(x) {
 
-  # Remover espa?os antes/depois
+  # Remover espacos antes/depois
   x <- trimws(x)
-  # Verificar se tem exatamente 6 d?gitos
+  # Verificar se tem exatamente 6 digitos
   if (!grepl("^[0-9]{6}$", x)) {
     stop("A data deve estar no formato AAAAMM (ex: 202412).")
   }
 
-  # Separar ano e m?s
+  # Separar ano e mes
   ano <- substr(x, 1, 4)
   mes <- substr(x, 5, 6)
 
-  # Validar m?s
+  # Validar mes
   if (!(mes %in% sprintf("%02d", 1:12))) {
     stop("O m?s deve ser entre 01 e 12.")
   }
@@ -147,7 +151,7 @@ dts_seq_data <- function(Data_inicio,Data_fim){
     if(inicio > fim){
       stop("Data inicial maior que a final.")}
 
-    # gera sequ?ncia mensal
+    # gera sequencia mensal
     seq_datas <- seq(inicio, fim, by = "month")
 
   }else{
@@ -169,17 +173,17 @@ dts_files_wb <- function(fonte,tipo,uf,sequencia_datas){
     CNES ='CNES/200508_/Dados/', #DEPENDE DO TIPO
     ESUS='ESUSNOTIFICA/DADOS/PRELIM/',
     PCE ='PCE/Dados/',
+    PNI ='PNI/DADOS/',
     PO ='painel_oncologia/Dados/',
     RESP ='RESP/DADOS/',
     SIA ='SIASUS/', #DEPENDE DA DATA
     SIH ='SIHSUS/', #DEPENDE DA DATA
     SIM = 'SIM/', #DEPENDE DO TIPO E ANO
-    SINAN = 'SINAN/', # ECOLHER FINAIS OU PRELIMINARES
-    SINASC = 'SINASC',# DEPENDE DO ANO e ESCOLHER FINAIS OU PRELIMINARES
+    SINAN = 'SINAN/DADOS/', # ECOLHER FINAIS OU PRELIMINARES
+    SINASC = 'SINASC/', # DEPENDE DO ANO e ESCOLHER FINAIS OU PRELIMINARES
     SISCOLO = 'siscan/SISCOLO4/DADOS/',
     SISMAMA = 'siscan/SISMAMA/DADOS/',
-    SISPRENATAL = 'SISPRENATAL/201201_/Dados/',
-    PNI ='PNI/DADOS/'
+    SISPRENATAL = 'SISPRENATAL/201201_/Dados/'
   )
 
   lnk <- paste0("ftp://ftp.datasus.gov.br/dissemin/publicos/",
@@ -273,7 +277,7 @@ dts_select_col <- function(colunas,df){
   }else{return(df)}
 }
 
-dtsus_download <- function(
+dtsus_download_aux <- function(
     files,
     save.dbc = FALSE,
     pasta.dbc = NULL,
@@ -281,7 +285,7 @@ dtsus_download <- function(
     filtro = NULL,
     colunas = NULL) {
 
-  # inicializações seguras
+  # inicializacoes seguras
   files$status_download <- NA_character_
   files$status_load <- NA_character_
   files$dt_hr <- as.POSIXct(NA, tz = "America/Sao_Paulo")
@@ -366,7 +370,26 @@ dtsus_download <- function(
 }
 
 
-dtsus_download_2 <- function(
+#' Accessing and Processing DATASUS Microdata
+#'
+#' @param fonte The abbreviation of the health information system to be accessed, e.g. CNES.
+#' @param tipo The abbreviation of the file to be accessed, e.g. LT.
+#' @param uf A specific UF or a vector of UFs specified ny their abbreviations.
+#' @param Data_inicio Start year and month in the format yyyymm.
+#' @param Data_fim End year and month in the format yyyymm.
+#' @param origem This argument is internally fixed and cannot be modified by the user.
+#' @param open Logical. If TRUE, the generated file is opened automatically.
+#' @param filtro A filter specification indicating the column and the values to be used for filtering.
+#' @param colunas A specific column or a vector of columns of interest.
+#' @param save.dbc Logical. If TRUE, the output is saved as a DBC file.
+#' @param pasta.dbc
+#'
+#' @returns TROCAR a \code{data.frame} with the contents of the DBC files.
+#' @export
+#'
+#' @examples
+#' Inserir exemplo aqui
+dtsus_download <- function(
     fonte = NULL,
     tipo = NULL,
     uf = NA,
@@ -410,7 +433,7 @@ dtsus_download_2 <- function(
     # valida a pasta DBC
     pasta.dbc <- dts_validate_dbc(save.dbc,pasta.dbc)
 
-    res <-dtsus_download(files,save.dbc,pasta.dbc,open,filtro,colunas)
+    res <-dtsus_download_aux(files,save.dbc,pasta.dbc,open,filtro,colunas)
     files <- res$files
     data <- do.call(rbind, res$data)
     return(list(files = files,dados = data))
