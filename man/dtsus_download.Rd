@@ -2,38 +2,51 @@
 % Please edit documentation in R/dtsus_download.R
 \name{dtsus_download}
 \alias{dtsus_download}
-\title{Fetch and read microdata files from DATASUS}
+\title{Accessing and Processing DATASUS Microdata}
 \usage{
 dtsus_download(
-  fonte = NA,
-  tipo = NA,
+  fonte = NULL,
+  tipo = NULL,
   uf = NA,
-  Data_inicio = 202308,
-  Data_fim = 202512,
-  origem = "data.sus"
+  Data_inicio = NA,
+  Data_fim = NA,
+  origem = "datasus",
+  open = T,
+  filtro = list(coluna = NA, valor = NA),
+  colunas = NA,
+  save.dbc = T,
+  pasta.dbc = NULL
 )
 }
 \arguments{
-\item{fonte}{A string. The abbreviation of the health information system to be accessed.}
+\item{fonte}{The abbreviation of the health information system to be accessed, e.g. CNES.}
 
-\item{tipo}{A string. The abbreviation of the file to be accessed.}
+\item{tipo}{The abbreviation of the file to be accessed, e.g. LT.}
 
-\item{uf}{A string or a vector of strings. By default ...}
+\item{uf}{A specific UF or a vector of UFs specified ny their abbreviations.}
 
 \item{Data_inicio}{Start year and month in the format yyyymm.}
 
 \item{Data_fim}{End year and month in the format yyyymm.}
 
-\item{origem}{I don't know..}
+\item{origem}{This argument is internally fixed and cannot be modified by the user.}
+
+\item{open}{Logical. If TRUE, the generated file is opened automatically.}
+
+\item{filtro}{A filter specification indicating the column and the values to be used for filtering.}
+
+\item{colunas}{A specific column or a vector of columns of interest.}
+
+\item{save.dbc}{Logical. If TRUE, the output is saved as a DBC file.}
+
+\item{pasta.dbc}{Path to the output directory where the generated files will be saved. Defaults to the current working directory.}
 }
 \value{
-fazer
+TROCAR a \code{data.frame} with the contents of the DBC files.
 }
 \description{
-Fetch and read microdata files from DATASUS
+Accessing and Processing DATASUS Microdata
 }
 \examples{
-fazer
-
-
+# Inserir exemplo aqui
 }

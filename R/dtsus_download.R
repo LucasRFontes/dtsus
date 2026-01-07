@@ -112,7 +112,7 @@ dts_validate_data <- function(x) {
 
   # Validar mes
   if (!(mes %in% sprintf("%02d", 1:12))) {
-    stop("O m?s deve ser entre 01 e 12.")
+    stop("O mês deve ser entre 01 e 12.")
   }
 
   # Retornar como lista ou tibble
@@ -372,6 +372,10 @@ dtsus_download_aux <- function(
 
 #' Accessing and Processing DATASUS Microdata
 #'
+#' Downloads public health datasets from the DATASUS FTP server (ftp.datasus.gov.br),
+#' supports data preprocessing and filtering, exports results to DBC or RData formats,
+#' and generates detailed processing logs.
+#'
 #' @param fonte The abbreviation of the health information system to be accessed, e.g. CNES.
 #' @param tipo The abbreviation of the file to be accessed, e.g. LT.
 #' @param uf A specific UF or a vector of UFs specified ny their abbreviations.
@@ -382,13 +386,13 @@ dtsus_download_aux <- function(
 #' @param filtro A filter specification indicating the column and the values to be used for filtering.
 #' @param colunas A specific column or a vector of columns of interest.
 #' @param save.dbc Logical. If TRUE, the output is saved as a DBC file.
-#' @param pasta.dbc
+#' @param pasta.dbc Path to the output directory where the generated files will be saved. Defaults to the current working directory.
 #'
 #' @returns TROCAR a \code{data.frame} with the contents of the DBC files.
 #' @export
 #'
 #' @examples
-#' Inserir exemplo aqui
+#' # Inserir exemplo aqui
 dtsus_download <- function(
     fonte = NULL,
     tipo = NULL,

@@ -1,13 +1,23 @@
 Package: dtsus
-Title: What the Package Does (One Line, Title Case)
+Title: Access and Process Microdata from DATASUS
 Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: AGPL (>= 3)
+Authors@R: c(
+    person("Lucas", "Fontes", , "lucasrodriguesfontes@hotmail.com", role = c("aut", "cre")),
+    person("Raquel", "Schneider", ,"raquelschneider03@gmail.com", role = "aut")
+    )
+URL: 
+BugReports: 
+Description: Provides tools to download public health datasets from the DATASUS FTP server (ftp.datasus.gov.br), with functions to preprocess, filter, and select variables from the data. The package supports handling large datasets, exporting processed data to DBC or RData formats, and generating log files with detailed records of data extraction and processing steps, supporting reproducible data workflows.
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+Imports:
+   RCurl,
+   curl,
+   read.dbc
+Remotes:
+   danicat/read.dbc
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+License: MIT + file LICENSE
