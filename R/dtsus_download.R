@@ -58,12 +58,6 @@ dts_validate_fonte_tipo <- function(fonte = NULL, tipo = NULL){
       stop('ERRO - Um TIPO desconhecido foi selecionado.')
     }
   }
-
-  # Retorno organizado
-  return(list(
-    fonte = fonte,
-    tipo  = tipo
-  ))
 }
 
 # uf
@@ -248,35 +242,44 @@ dts_files_wb <- function(fonte,tipo,uf,sequencia_datas){
 
 }
 
+# Valida o filtro e aplica se estiver ok
+dts_filter_Df <- function(filtro, df) {
+  if (!is.null(filtro)) {
+    if (!is.list(filtro) ||
+        !all(c("coluna", "valor") %in% names(filtro))){
+      warning("Filtro inválido. Esperado uma lista com 'coluna' e 'valor'. Filtro não aplicado.",call. = FALSE)
 
-dts_filter_Df <- function(filtro,df){
-  # aplicando os filtros
-  if(is.list(filtro) & all(c('coluna','valor') %in% names(filtro))){
-    if(!all(is.na(filtro$coluna) & is.na(filtro$valor))){
-      if(filtro$coluna %in% names(df) & length(filtro$coluna) == 1){
+      } else if (all(is.na(filtro$coluna))) {
+        warning("Filtro inválido. Campo Coluna não preenchido. Filtro não aplicado.",call. = FALSE)
 
+        } else if (!filtro$coluna %in% names(df)) {
+          warning("Filtro inválido. Coluna selecionada não encontrada na base. Filtro não aplicado.",call. = FALSE)
 
-        df <- df[
-          as.character(df[[filtro$coluna]]) %in% as.character(filtro$valor),]
-        print('Filtro aplicado corretamente')
-        return(df)
-      }else{return(df)}
-    }else{return(df)}
+          } else if (all(is.na(filtro$valor))) {
+            warning("Filtro inválido. Nenhum valor informado. Filtro não aplicado.",call. = FALSE)
+
+            } else {
+              df <- df[as.character(df[[filtro$coluna]]) %in%
+                         as.character(filtro$valor),,drop = FALSE]}
   }
-
+  return(df)
 }
 
 # selecionando apenas as colunas necessarias
-dts_select_col <- function(colunas,df){
-  if(any(!is.na(colunas) & is.vector(colunas))){
-    if(all(colunas %in% names(df))){
-      df <- df[,colunas]
-      return(df)
-    gc()
-    }else{return(df)}
-  }else{return(df)}
+dts_select_col <- function(colunas, df) {
+
+  if (is.null(colunas)) return(df)
+  faltantes <- setdiff(colunas, names(df))
+  if (length(faltantes) > 0) {
+    warning(sprintf("Coluna(s) ignorada(s): %s",paste(faltantes, collapse = ", ")),call. = FALSE)
+  }
+
+  cols_ok <- intersect(colunas, names(df))
+  df[, cols_ok, drop = FALSE]
 }
 
+
+# gerencia o download
 dtsus_download_aux <- function(
     files,
     save.dbc = FALSE,
@@ -402,11 +405,10 @@ dtsus_download <- function(
     origem = 'datasus',
     open = T,
     filtro =list(coluna = NA,valor = NA),
-    colunas = NA,
+    colunas = NULL,
     save.dbc = T,
     pasta.dbc = NULL
     ){
-
 
 
   dts_validate_fonte_tipo(fonte,tipo) # Valida fonte e tipo
@@ -445,6 +447,7 @@ dtsus_download <- function(
 }
 
 
+temp <- TEMP$dados
 
 
 
@@ -452,6 +455,8 @@ dtsus_download <- function(
 
 
 
-
-TEMP <-dtsus_download(fonte = 'SIH',tipo = 'RD',uf = 'MG',Data_inicio = 202308,colunas = c('CNES','PROC_REA','MUNIC_MOV'),filtro = c(coluna ='MUNIC_MOV',valor = c(310620,310710)))
+TEMP <-dtsus_download(fonte = 'SIA',tipo = 'PA',uf = 'MG',
+                      Data_inicio = 202308,
+                      Data_fim = 202309,
+                      colunas = c('CNES','PROC_REA','MUNIC_MOV'),save.dbc = F)
 
