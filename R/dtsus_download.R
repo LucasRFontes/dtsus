@@ -2,9 +2,9 @@
 
 # Funcoes de validacao
 # Fonte
-dts_validate_fonte_tipo <- function(fonte = NULL, tipo = NULL){
+dts_validate_fonte_tipo <- function(fonte = NA, tipo = NA){
 
-  if (is.null(fonte)) {
+  if (length(fonte) != 1 || is.na(fonte)) {
     stop('ERRO - Selecione uma Fonte de dados do DATASUS')
   }
 
@@ -48,20 +48,23 @@ dts_validate_fonte_tipo <- function(fonte = NULL, tipo = NULL){
     tipo <- tp
 
   } else {
-    if (is.null(tipo) || length(tipo) != 1) {
+    tipo <- toupper(trimws(tipo))
+
+    if(all(is.na(tipo)) || length(tipo) != 1) {
       stop('ERRO - Insira um TIPO válido para esta fonte.')
     }
 
-    tipo <- toupper(trimws(tipo))
 
     if (!tipo %in% tp) {
       stop('ERRO - Um TIPO desconhecido foi selecionado.')
     }
   }
+  return(list(fonte = fonte,
+              tipo = tipo))
 }
 
 # uf
-dts_validate_uf <- function(uf =NULL){
+dts_validate_uf <- function(uf = NA){
 
   # lista com os estados
   ufs <- c(
@@ -70,7 +73,9 @@ dts_validate_uf <- function(uf =NULL){
     "RS","RO","RR","SC","SP","SE","TO"
   )
 
-  if(is.null(uf)){
+  if(all(is.na(uf))){
+    warning("UF não informada. Todas as UFs serão utilizadas.")
+
     return(ufs)}
 
   uf <- toupper(trimws(uf))
@@ -120,14 +125,17 @@ dts_validate_data <- function(x) {
 dts_validate_dbc <- function(save.dbc, pasta.dbc) {
 
    # Validando a pasta para receber o dbc
-  if (isTRUE(save.dbc)) {
-    if (is.null(pasta.dbc) || !dir.exists(pasta.dbc)) {
-      message("Pasta DBC não encontrada. Salvando arquivo DBC em: ", getwd())
-      return(getwd())
-    }else{
-      return(pasta.dbc)
-    }
+  if (!isTRUE(save.dbc)){return(NULL)}
+  if (is.null(pasta.dbc) || !dir.exists(pasta.dbc)) {
+    warning(
+      paste("Pasta DBC não encontrada. Salvando arquivo DBC em:", getwd()),
+      call. = FALSE
+    )
+    return(getwd())
+  }else{
+    return(pasta.dbc)
   }
+
 }
 
 # cria Sequencia das datas
@@ -214,8 +222,16 @@ dts_files_wb <- function(fonte,tipo,uf,sequencia_datas){
   lista_arquivos <- data.frame() # lista dos arquivos a ser baixados
 
   for(l in unique(files$lnk_final)){
-    arquivos <- unlist(strsplit(RCurl::getURL(url = l, ftp.use.epsv = TRUE, dirlistonly = TRUE), "\n")) # gera lista de arquivos disponiveis
-    arquivos <- data.frame(arquivos = gsub("\r","",arquivos),
+    arquivos <- tryCatch({
+      unlist(strsplit(RCurl::getURL(url = l, ftp.use.epsv = TRUE, dirlistonly = TRUE), "\n")) # gera lista de arquivos disponiveis
+    }, error=function(e){
+      stop(
+        paste("Problema ao acessar o FTP:", l),
+        call. = FALSE
+      )
+
+    })
+      arquivos <- data.frame(arquivos = gsub("\r","",arquivos),
                            nome_arquivo = substr(arquivos,1,8)) # transforma em data frame
 
 
@@ -249,13 +265,13 @@ dts_filter_Df <- function(filtro, df) {
         !all(c("coluna", "valor") %in% names(filtro))){
       warning("Filtro inválido. Esperado uma lista com 'coluna' e 'valor'. Filtro não aplicado.",call. = FALSE)
 
-      } else if (all(is.na(filtro$coluna))) {
+      } else if (all(is.null(filtro$coluna))) {
         warning("Filtro inválido. Campo Coluna não preenchido. Filtro não aplicado.",call. = FALSE)
 
         } else if (!filtro$coluna %in% names(df)) {
           warning("Filtro inválido. Coluna selecionada não encontrada na base. Filtro não aplicado.",call. = FALSE)
 
-          } else if (all(is.na(filtro$valor))) {
+          } else if (is.null(filtro$valor)) {
             warning("Filtro inválido. Nenhum valor informado. Filtro não aplicado.",call. = FALSE)
 
             } else {
@@ -268,7 +284,8 @@ dts_filter_Df <- function(filtro, df) {
 # selecionando apenas as colunas necessarias
 dts_select_col <- function(colunas, df) {
 
-  if (is.null(colunas)) return(df)
+  if(is.null(colunas)){
+    return(df)}
   faltantes <- setdiff(colunas, names(df))
   if (length(faltantes) > 0) {
     warning(sprintf("Coluna(s) ignorada(s): %s",paste(faltantes, collapse = ", ")),call. = FALSE)
@@ -397,26 +414,30 @@ dtsus_download_aux <- function(
 #' @examples
 #' # Inserir exemplo aqui
 dtsus_download <- function(
-    fonte = NULL,
-    tipo = NULL,
+    fonte = NA,
+    tipo = NA,
     uf = NA,
     Data_inicio = NA,
-    Data_fim = NA,
+    Data_fim = NULL,
     origem = 'datasus',
-    open = T,
-    filtro =list(coluna = NA,valor = NA),
+    open = TRUE,
+    filtro =list(coluna = NULL,valor = NULL),
     colunas = NULL,
-    save.dbc = T,
+    save.dbc = FALSE,
     pasta.dbc = NULL
     ){
 
+  # Ajustando possiveis erros de digitação na fonte e tipo
 
-  dts_validate_fonte_tipo(fonte,tipo) # Valida fonte e tipo
-  dts_validate_uf(uf) # valida a UF
+
+  font_valid <- dts_validate_fonte_tipo(fonte,tipo) # Valida fonte e tipo
+  fonte <- font_valid$fonte
+  tipo <- font_valid$tipo
+  uf <- dts_validate_uf(uf) # valida a UF
 
   Data_inicio <- dts_validate_data(Data_inicio) # Validando se a data foi preenchida corretamente
 
-  if(!all(is.na(Data_fim))){
+  if(!is.null(Data_fim)){
     Data_fim <- dts_validate_data(Data_fim)
   } # Validando se a data FINAL foi preenchida corretamente
 
@@ -428,7 +449,7 @@ dtsus_download <- function(
 
     # Testa a conexao com a internet
     if(curl::has_internet() == T){
-      print('Internet: Ok')
+      message('Internet: Ok')
     }else{
       stop('ERRO -  Verifique sua conexão com a internet')
     }
@@ -441,22 +462,20 @@ dtsus_download <- function(
 
     res <-dtsus_download_aux(files,save.dbc,pasta.dbc,open,filtro,colunas)
     files <- res$files
-    data <- do.call(rbind, res$data)
+
+    data <- if (length(res$data) > 0) {
+      do.call(rbind, res$data)
+    } else {
+      NULL
+    }
+
+
+
     return(list(files = files,dados = data))
   }
 }
 
 
-temp <- TEMP$dados
 
 
-
-
-
-
-
-TEMP <-dtsus_download(fonte = 'SIA',tipo = 'PA',uf = 'MG',
-                      Data_inicio = 202308,
-                      Data_fim = 202309,
-                      colunas = c('CNES','PROC_REA','MUNIC_MOV'),save.dbc = F)
 
