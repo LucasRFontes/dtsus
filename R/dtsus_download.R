@@ -99,6 +99,7 @@ dts_validate_uf <- function(uf = NA){
 dts_validate_data <- function(x) {
 
   # Remover espacos antes/depois
+  x <- as.character(x)
   x <- trimws(x)
   # Verificar se tem exatamente 6 digitos
   if (!grepl("^[0-9]{6}$", x)) {
@@ -108,6 +109,13 @@ dts_validate_data <- function(x) {
   # Separar ano e mes
   ano <- substr(x, 1, 4)
   mes <- substr(x, 5, 6)
+
+  # Validar ano
+  if (as.integer(ano) <= 1988 |
+      as.integer(ano) > as.integer(format(Sys.Date(), "%Y"))) {
+    stop("O ano não pode ser menor que 1988 e não pode ser maior que a data atual.")
+  }
+
 
   # Validar mes
   if (!(mes %in% sprintf("%02d", 1:12))) {
