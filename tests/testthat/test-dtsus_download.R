@@ -112,7 +112,111 @@ test_that('Erro de digitaçao',{
 })
 
 # DF gerencia os arquivos
-test_that('DADOS CORRETOS',{
-  TESTE <- dts_files_wb('SIH','RD','AC',202301)
-  expect_equal()
+if(curl::has_internet() == T){
+  test_that('DADOS CORRETOS',{
+    TESTE <- dts_files_wb('SIH','RD','AC',c(202301:202304))
+    expect_equal(nrow(TESTE),4)
+    expect_equal(TESTE$lnk_final[3],"ftp://ftp.datasus.gov.br/dissemin/publicos/SIHSUS/200801_/Dados/RDAC2303.dbc")
+    expect_equal(TESTE$lnk_final[1],"ftp://ftp.datasus.gov.br/dissemin/publicos/SIHSUS/200801_/Dados/RDAC2301.dbc")
+  })
+
+  test_that('DADOS CORRETOS',{
+    TESTE <- dts_files_wb('SIA','PA','SP',202409)
+    expect_equal(nrow(TESTE),3)
+    expect_equal(TESTE$arquivos,c('PASP2409a.dbc','PASP2409b.dbc','PASP2409c.dbc'))
+  })
+
+  # todas as variaveis ja foram testadas antes, o que reduz a chance de erros
+  test_that('DADOS CORRETOS',{
+    expect_error(dts_files_wb('CNES','LT','SP',205009),'Erro - TIPO / UF / PERIODO NAO DISPONIVEL  NO MOMENTO')
+  })
+}
+
+# Funçao que filtra
+df <- data.frame(
+  uf = c("MG",'SP','MG', "SP", 'AC',"RJ"),
+  valor = c(10, 20, 30,40,50,60),
+  stringsAsFactors = FALSE
+)
+
+test_that('Filtro correto',{
+  teste <- dts_filter_Df(list(coluna = 'uf',valor='MG'),df)
+  expect_equal(nrow(teste),2)
+  expect_equal(teste$valor,c(10,30))
 })
+
+
+test_that('Filtro correto',{
+  teste <- dts_filter_Df(list(coluna = 'uf',valor=c('AC','SP')),df)
+  expect_equal(nrow(teste),3)
+  expect_equal(teste$valor,c(20,40,50))
+})
+
+test_that('Filtro nao aplicado, valor faltando',{
+
+  expect_warning(
+    dts_filter_Df(list(coluna = "uf"), df),
+    "Filtro inválido. Esperado uma lista com 'coluna' e 'valor'. Filtro não aplicado."
+  )
+})
+
+
+test_that('Filtro nao aplicado, coluna errada',{
+
+  expect_warning(
+    dts_filter_Df(list(coluna = "PROC",valor = 'MG'), df),
+    "Filtro inválido. Coluna selecionada não encontrada na base. Filtro não aplicado."
+  )
+})
+
+# selecionando colunas
+test_that('Colunas Selecionadas',{
+  teste <- dts_select_col(c('pais','uf'),df)
+  expect_equal(ncol(teste),2)
+  expect_equal(nrow(teste),6)
+  expect_equal(names(teste),c('pais','uf'))
+})
+
+test_that('Colunas ignorada',{
+  expect_warning(teste <- dts_select_col(c('pais','uf','area'),df))
+  expect_equal(ncol(teste),2)
+  expect_equal(nrow(teste),6)
+  expect_equal(names(teste),c('pais','uf'))
+})
+
+
+test_that('Colunas ignorada',{
+  expect_warning(teste <- dts_select_col(c('area'),df))
+  expect_equal(ncol(teste),3)
+  expect_equal(nrow(teste),6)
+  expect_equal(names(teste),c('uf','valor','pais'))
+})
+
+
+# testando a função que realiza o download
+
+if(curl::has_internet() == T){
+
+    bases <- dts_files_wb('SIH','RD','AC',c(202301:202304))
+
+    test_that("Retorno tem estrutura esperada", {
+      bases <- dts_files_wb("SIH","RD","AC",202301)
+
+      res <- dtsus_download_aux(bases, save.dbc = FALSE, open = FALSE)
+
+      expect_type(res, "list")
+      expect_true(all(c("files","data") %in% names(res)))
+      expect_s3_class(res$files, "data.frame")
+      expect_type(res$data, "list")
+      expect_true(all(!is.na(res$files$status_download)))
+      expect_true(all(res$files$status_download %in%
+                        c("Download realizado","Erro no download")))
+      expect_length(res$data, 0)
+    })
+
+
+
+
+
+
+}

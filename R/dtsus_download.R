@@ -204,7 +204,7 @@ dts_files_wb <- function(fonte,tipo,uf,sequencia_datas){
     lnk <- paste0(lnk,tipo,'/')
     }
 
-    # Preparando lista de arquivos para download
+  # Preparando lista de arquivos para download
   files <- data.frame(fonte,tipo,uf,sequencia_datas,lnk)
 
   files$lnk_compl <- mapply(function(fonte, ano) {
@@ -300,7 +300,9 @@ dts_select_col <- function(colunas, df) {
   }
 
   cols_ok <- intersect(colunas, names(df))
-  df[, cols_ok, drop = FALSE]
+  if(length(cols_ok) > 0){
+    df[, cols_ok, drop = FALSE]
+    }else{df}
 }
 
 
