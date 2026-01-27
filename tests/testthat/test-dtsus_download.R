@@ -200,7 +200,6 @@ if(curl::has_internet() == T){
     bases <- dts_files_wb('SIH','RD','AC',c(202301:202304))
 
     test_that("Retorno tem estrutura esperada", {
-      bases <- dts_files_wb("SIH","RD","AC",202301)
 
       res <- dtsus_download_aux(bases, save.dbc = FALSE, open = FALSE)
 
@@ -214,9 +213,112 @@ if(curl::has_internet() == T){
       expect_length(res$data, 0)
     })
 
+    bases <- dts_files_wb('CNES','LT','AC',c(202101:202103))
+
+    test_that("Retorno tem estrutura esperada", {
+
+      res <- dtsus_download_aux(bases, save.dbc = FALSE, open = T)
+
+      expect_type(res, "list")
+      expect_true(all(c("files","data") %in% names(res)))
+      expect_s3_class(res$files, "data.frame")
+      expect_type(res$data, "list")
+      expect_true(all(!is.na(res$files$status_download)))
+      expect_true(all(res$files$status_download %in%
+                        c("Download realizado","Erro no download")))
+      expect_true(length(res$data) > 0)
+      expect_true(any(res$files$status_load == "Carregado"))
+    })
 
 
+    test_that("Filtro é aplicado aos dados", {
+      bases <- dts_files_wb("CNES","LT","MS",202501)
+
+      res <- dtsus_download_aux(
+        bases,
+        open = TRUE,
+        filtro = list(coluna = "CNES", valor = "9081496")
+      )
+
+      expect_true(all(res$data[[1]]$CNES == "9081496"))
+    })
+
+    test_that("Colunas selecionadas", {
+      bases <- dts_files_wb("SIA",'PA',"ES",202201)
+
+      res <- dtsus_download_aux(
+        bases,
+        open = TRUE,
+        colunas = c("PA_CODUNI","PA_QTDPRO",'PA_PROC_ID'),
+        filtro = list(coluna = 'PA_PROC_ID',valor =c('0214010163','0211020060'))
+      )
+
+      expect_true(all(res$data[[1]]$CNES %in% c('0214010163','0211020060')))
+      expect_true(all(names(res$data[[1]]) %in% c("PA_CODUNI","PA_QTDPRO",'PA_PROC_ID')))
+    })
+
+}
+
+test_that("DBC é salvo quando save.dbc = TRUE", {
+  bases <- dts_files_wb("SIH","RD","SC",202301)
+  pasta <- tempdir()
+
+  res <- dtsus_download_aux(
+    bases,
+    save.dbc = TRUE,
+    pasta.dbc = pasta,
+    open = FALSE
+  )
+
+  expect_true(
+    file.exists(file.path(pasta, bases$arquivos[1]))
+  )
+})
+
+test_that("Erro em um arquivo não interrompe loop", {
+  bases <- dts_files_wb("SIH","RD","AC",c(202301:202303))
+
+  bases$lnk_final[2] <- "ftp://endereco.inexistente.salve.o.sus/erro.dbc"
+
+  res <- dtsus_download_aux(bases, open = TRUE)
+
+  expect_equal(nrow(res$files), nrow(bases))
+})
+
+# Testando a funcao completa, para todas as bases
+
+base_mappimg <- list(
+  CIH = 'CR',
+  CIHA = 'CIHA',
+  CNES = c("DC","EE","EF","EP","EQ","GM","HB","IN","LT","PF","RC","SR","ST"),
+  ESUS = 'DCCR',
+  PCE = 'PCE',
+  PNI = c("CPNI","DPNI"),
+  PO = 'PO',
+  RESP = 'RESP',
+  SIA = c("AB","ABO","ACF","AD","AM","AN","AQ","AR","ATD","PA","PS","SAD"),
+  SIH = c("CH","CM","ER","RD","RJ","SP","MT"),
+  SIM = c("DO","DOEXT","DOFET","DOINF","DOMAT","DOR","DOREXT"),
+  SINAN = c("ACBI","ACGR","AIDA","AIDC","ANIM","ANTR","BOTU","CANC","CHAG",
+            "CHIK","COLE","COQU","DCRJ","DENG","DERM","DIFT","ESPO","ESQU",
+            "EXAN","FMAC","FTIF","HANS","HANT","HEPA","HIVA","HIVC","HIVE",
+            "HIVG","IEXO","INFL","LEIV","LEPT","LER", "LERD","LTAN","MALA",
+            "MENI","MENT","NTRA","PAIR","PEST","PFAN","PNEU","RAIV","ROTA",
+            "SDTA","SIFA","SIFC","SIFG","SRC", "TETA","TETN","TOXC","TOXG",
+            "TRAC","TUBE","VARC","VIOL","ZIKA"),
+  SINASC = c("DN","DNEX"),
+  SISCOLO = c("CC","HC"),
+  SISMAMA = c("CM","HM","MM"),
+  SISPRENATAL = 'PN'
+)
 
 
+for( n in 1:length(base_mappimg)) {
+  base <- names(base_mappimg[n])
+
+  for(t in base_mappimg[[base]]){
+
+    sprintf('Testando',base, ' - ',t)
+  }
 
 }
