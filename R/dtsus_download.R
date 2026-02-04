@@ -21,7 +21,7 @@ dts_validate_fonte_tipo <- function(fonte = NA, tipo = NA){
     PO = 'PO',
     RESP = 'RESP',
     SIA = c("AB","ABO","ACF","AD","AM","AN","AQ","AR","ATD","PA","PS","SAD"),
-    SIH = c("CH","CM","ER","RD","RJ","SP","MT"),
+    SIH = c("ER","RD","RJ","SP"),
     SIM = c("DO","DOEXT","DOFET","DOINF","DOMAT","DOR","DOREXT"),
     SINAN = c("ACBI","ACGR","AIDA","AIDC","ANIM","ANTR","BOTU","CANC","CHAG",
               "CHIK","COLE","COQU","DCRJ","DENG","DERM","DIFT","ESPO","ESQU",
@@ -196,6 +196,9 @@ dts_files_wb <- function(fonte,tipo,uf,sequencia_datas){
     SISPRENATAL = 'SISPRENATAL/201201_/Dados/'
   )
 
+  # Fontes cuja atualizacao e anual
+  font_anual <- c('ESUS','PCE','PO','RESP','SIM','DO','SINAN','SINASC')
+
   lnk <- paste0("ftp://ftp.datasus.gov.br/dissemin/publicos/",
                 base_mappimg[[fonte]]) # criando o link de acesso ao MS
 
@@ -239,8 +242,11 @@ dts_files_wb <- function(fonte,tipo,uf,sequencia_datas){
       )
 
     })
-      arquivos <- data.frame(arquivos = gsub("\r","",arquivos),
-                           nome_arquivo = substr(arquivos,1,8)) # transforma em data frame
+
+    ncaract <- nchar(tipo)+6 # numeros de caracteres q o nome do arquivo tem (fonte varia entre 2 e 3 caract)
+
+    arquivos <- data.frame(arquivos = gsub("\r","",arquivos),
+                           nome_arquivo = substr(arquivos,1,ncaract)) # transforma em data frame
 
 
     df_temp <- files[files$lnk_final == l,] # dataframe temporario correspondente ao arquivo a ser baixado
@@ -316,8 +322,8 @@ dtsus_download_aux <- function(
     colunas = NULL) {
 
   # inicializacoes seguras
-  files$status_download <- NA_character_
-  files$status_load <- NA_character_
+  files$status_download <- 'Nao Realizado'
+  files$status_load <- 'Nao Carregado'
   files$dt_hr <- as.POSIXct(NA, tz = "America/Sao_Paulo")
 
   data_list <- list()
@@ -331,14 +337,25 @@ dtsus_download_aux <- function(
 
     # DOWNLOAD
     tryCatch({
+
       temp <- tempfile(fileext = ".dbc")
-      download.file(l, temp, mode = "wb", method = "libcurl")
+
+      withCallingHandlers(
+        download.file(l, temp, mode = "wb", method = "libcurl"),
+        warning = function(w) stop(w)
+      )
+
       files$status_download[i] <- "Download realizado"
       cat("✔ Download realizado:", l, "\n")
+
     }, error = function(e) {
+
       files$status_download[i] <- "Erro no download"
       cat("✖ Erro em:", l, "->", conditionMessage(e), "\n")
+
+      temp <- NULL
     })
+
 
     files$dt_hr[i] <- data_hora
 

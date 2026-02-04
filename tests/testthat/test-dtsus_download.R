@@ -136,6 +136,7 @@ if(curl::has_internet() == T){
 df <- data.frame(
   uf = c("MG",'SP','MG', "SP", 'AC',"RJ"),
   valor = c(10, 20, 30,40,50,60),
+  pais = 'BR',
   stringsAsFactors = FALSE
 )
 
@@ -170,6 +171,7 @@ test_that('Filtro nao aplicado, coluna errada',{
 })
 
 # selecionando colunas
+
 test_that('Colunas Selecionadas',{
   teste <- dts_select_col(c('pais','uf'),df)
   expect_equal(ncol(teste),2)
@@ -276,14 +278,19 @@ test_that("DBC é salvo quando save.dbc = TRUE", {
 })
 
 test_that("Erro em um arquivo não interrompe loop", {
-  bases <- dts_files_wb("SIH","RD","AC",c(202301:202303))
 
+  bases <- dts_files_wb("SIH","RD","AC",c(202301:202303))
   bases$lnk_final[2] <- "ftp://endereco.inexistente.salve.o.sus/erro.dbc"
 
-  res <- dtsus_download_aux(bases, open = TRUE)
+  res <- suppressWarnings(
+    dtsus_download_aux(bases, open = TRUE)
+  )
 
   expect_equal(nrow(res$files), nrow(bases))
+  expect_equal(res$files$status_download[2], "Nao Realizado")
+  expect_equal(unique(res$files$status_download[c(1,3)]), "Download realizado")
 })
+
 
 # Testando a funcao completa, para todas as bases
 
@@ -291,26 +298,35 @@ base_mappimg <- list(
   CIH = 'CR',
   CIHA = 'CIHA',
   CNES = c("DC","EE","EF","EP","EQ","GM","HB","IN","LT","PF","RC","SR","ST"),
-  ESUS = 'DCCR',
-  PCE = 'PCE',
-  PNI = c("CPNI","DPNI"),
-  PO = 'PO',
-  RESP = 'RESP',
+  #ESUS = 'DCCR',
+  #PCE = 'PCE',
+  #PNI = c("CPNI","DPNI"),
+  #PO = 'PO',
+  #RESP = 'RESP',
+  SIH = c("ER","RD","RJ","SP"),
   SIA = c("AB","ABO","ACF","AD","AM","AN","AQ","AR","ATD","PA","PS","SAD"),
-  SIH = c("CH","CM","ER","RD","RJ","SP","MT"),
-  SIM = c("DO","DOEXT","DOFET","DOINF","DOMAT","DOR","DOREXT"),
-  SINAN = c("ACBI","ACGR","AIDA","AIDC","ANIM","ANTR","BOTU","CANC","CHAG",
-            "CHIK","COLE","COQU","DCRJ","DENG","DERM","DIFT","ESPO","ESQU",
-            "EXAN","FMAC","FTIF","HANS","HANT","HEPA","HIVA","HIVC","HIVE",
-            "HIVG","IEXO","INFL","LEIV","LEPT","LER", "LERD","LTAN","MALA",
-            "MENI","MENT","NTRA","PAIR","PEST","PFAN","PNEU","RAIV","ROTA",
-            "SDTA","SIFA","SIFC","SIFG","SRC", "TETA","TETN","TOXC","TOXG",
-            "TRAC","TUBE","VARC","VIOL","ZIKA"),
-  SINASC = c("DN","DNEX"),
+  #SIM = c("DO","DOEXT","DOFET","DOINF","DOMAT","DOR","DOREXT"),
+  # #SINAN = c("ACBI","ACGR","AIDA","AIDC","ANIM","ANTR","BOTU","CANC","CHAG",
+  #           "CHIK","COLE","COQU","DCRJ","DENG","DERM","DIFT","ESPO","ESQU",
+  #           "EXAN","FMAC","FTIF","HANS","HANT","HEPA","HIVA","HIVC","HIVE",
+  #           "HIVG","IEXO","INFL","LEIV","LEPT","LER", "LERD","LTAN","MALA",
+  #           "MENI","MENT","NTRA","PAIR","PEST","PFAN","PNEU","RAIV","ROTA",
+  #           "SDTA","SIFA","SIFC","SIFG","SRC", "TETA","TETN","TOXC","TOXG",
+  #           "TRAC","TUBE","VARC","VIOL","ZIKA"),
+  #SINASC = c("DN","DNEX"),
   SISCOLO = c("CC","HC"),
   SISMAMA = c("CM","HM","MM"),
   SISPRENATAL = 'PN'
 )
+
+ufs <- c('RO','AM','AC','TO','SE','MS','DF')
+data <- c(201801:201812,
+          201901:201912,
+          202001:202012,
+          202101:202112,
+          202201:202212,
+          202301:202312,
+          202401:202412)
 
 
 for( n in 1:length(base_mappimg)) {
@@ -318,7 +334,30 @@ for( n in 1:length(base_mappimg)) {
 
   for(t in base_mappimg[[base]]){
 
-    sprintf('Testando',base, ' - ',t)
+    uf <- sample(ufs,1)
+    per <- sample(data,1)
+
+    if(t %in% c('EE','GM','AB','ABO',"SAD",'CIHA','CC','CM','PN','HC')){
+      uf <- 'SP'
+      per <- 201404
+    }
+    if(t %in% c('AN')){
+      uf <- 'SP'
+      per <- 201304
+    }
+    if(t %in% c('AR')){
+      uf <- 'SP'
+    }
+
+    if(t %in% c('CR')){
+      uf <- 'SP'
+      per <- 201004
+    }
+
+
+    print(paste0('Testando ',base, ' - ',t, ' UF: ',uf,' PERIODO ',per))
+
+    dtsus_download(fonte = base,tipo = t,uf = uf,Data_inicio = per,open = T,save.dbc = F)
   }
 
 }
