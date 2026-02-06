@@ -7,6 +7,7 @@ test_that("Fonte e tipos validados", {
   res <- dts_validate_fonte_tipo(fonte = 'Sih ', tipo = 'rd')
   expect_equal(res$fonte, "SIH")
   expect_equal(res$tipo, "RD")
+  expect_equal(res$periodicidade,'mensal')
 })
 
 test_that("Erro Fonte invalida", {
@@ -42,18 +43,31 @@ test_that('UF DESCONHECIDA',{
 
 # Data
 test_that('DATA CORRETA',{
-  res<- dts_validate_data(202305)
+  res<- dts_validate_data(202305,periodicidade = 'mensal')
   expect_equal(res$ano,2023)
   expect_equal(res$mes,05)
 })
 
+test_that('DATA CORRETA',{
+  res<- dts_validate_data(2023,periodicidade = 'anual')
+  expect_equal(res$ano,2023)
+})
 
 test_that('DATA NAO INFORMADA',{
   expect_error(dts_validate_data())
 })
 
 test_that('Formato da data errado',{
-  expect_error(dts_validate_data('2023/05'))
+  expect_error(dts_validate_data('2023/05',periodicidade = 'mensal'))
+})
+
+test_that('Formato da data errado',{
+  expect_error(dts_validate_data('2023',periodicidade = 'mensal'))
+})
+
+
+test_that('Formato da data errado',{
+  expect_error(dts_validate_data('2023/05',periodicidade = 'anual'))
 })
 
 test_that('Ano inforamdo errado',{
@@ -95,8 +109,19 @@ test_that('Sequencia correta',{
   expect_equal(TESTE,c('202309','202310','202311','202312','202401','202402'))
 })
 
+test_that('Sequencia correta',{
+  TESTE <- dts_seq_data(list(ano = 2019),list(ano = 2024))
+  expect_equal(TESTE,c('2019','2020','2021','2022','2023','2024'))
+})
+
+test_that('DATA FIM NULL',{
+  TESTE <- dts_seq_data(list(ano = 2019),NULL)
+  expect_equal(TESTE,c('2019'))
+})
+
+
 test_that('Sequencia errada',{
-  expect_error(dts_seq_data(list(ano = 2023,mes= 09),list(ano = 2023,mes= 02)))
+  expect_error(dts_seq_data(list(ano = 2023,mes= 09),list(ano = 2023,mes= 02)),"Data inicial maior que a final.")
 })
 
 test_that('DATA FIM NAO INFORMADA',{
@@ -110,6 +135,7 @@ test_that('Erro de digitaçao',{
 test_that('Erro de digitaçao',{
   expect_error(dts_seq_data(list(ano = 20231,mes= 09),list(ano = 20203,mes= 02)))
 })
+
 
 # DF gerencia os arquivos
 if(curl::has_internet() == T){
@@ -298,24 +324,25 @@ base_mappimg <- list(
   CIH = 'CR',
   CIHA = 'CIHA',
   CNES = c("DC","EE","EF","EP","EQ","GM","HB","IN","LT","PF","RC","SR","ST"),
-  #ESUS = 'DCCR',
-  #PCE = 'PCE',
-  #PNI = c("CPNI","DPNI"),
-  #PO = 'PO',
-  #RESP = 'RESP',
+  ESUS = 'DCCR',
+  PCE = 'PCE',
+  PNI = c("CPNI","DPNI"),
+  PO = 'PO',
+  RESP = 'RESP',
+
   SIH = c("ER","RD","RJ","SP"),
   SIA = c("AB","ABO","ACF","AD","AM","AN","AQ","AR","ATD","PA","PS","SAD"),
-  #SIM = c("DO","DOEXT","DOFET","DOINF","DOMAT","DOR","DOREXT"),
-  # #SINAN = c("ACBI","ACGR","AIDA","AIDC","ANIM","ANTR","BOTU","CANC","CHAG",
-  #           "CHIK","COLE","COQU","DCRJ","DENG","DERM","DIFT","ESPO","ESQU",
-  #           "EXAN","FMAC","FTIF","HANS","HANT","HEPA","HIVA","HIVC","HIVE",
-  #           "HIVG","IEXO","INFL","LEIV","LEPT","LER", "LERD","LTAN","MALA",
-  #           "MENI","MENT","NTRA","PAIR","PEST","PFAN","PNEU","RAIV","ROTA",
-  #           "SDTA","SIFA","SIFC","SIFG","SRC", "TETA","TETN","TOXC","TOXG",
-  #           "TRAC","TUBE","VARC","VIOL","ZIKA"),
-  #SINASC = c("DN","DNEX"),
+  SIM = c("DO","DOEXT","DOFET","DOINF","DOMAT","DOR","DOREXT"),
+  SINAN = c("ACBI","ACGR","AIDA","AIDC","ANIM","ANTR","BOTU","CANC","CHAG",
+              "CHIK","COLE","COQU","DCRJ","DENG","DERM","DIFT","ESPO","ESQU",
+              "EXAN","FMAC","FTIF","HANS","HANT","HEPA","HIVA","HIVC","HIVE",
+              "HIVG","IEXO","INFL","LEIV","LEPT","LER", "LERD","LTAN","MALA",
+              "MENI","MENT","NTRA","PAIR","PEST","PFAN","PNEU","RAIV","ROTA",
+              "SDTA","SIFA","SIFC","SIFG","SRC", "TETA","TETN","TOXC","TOXG",
+              "TRAC","TUBE","VARC","VIOL","ZIKA"),
+  SINASC = c("DN","DNEX"),
   SISCOLO = c("CC","HC"),
-  SISMAMA = c("CM","HM","MM"),
+  SISMAMA = c("CM","HM"),
   SISPRENATAL = 'PN'
 )
 
@@ -328,14 +355,24 @@ data <- c(201801:201812,
           202301:202312,
           202401:202412)
 
+data_ano <- c(2018:2022)
 
 for( n in 1:length(base_mappimg)) {
   base <- names(base_mappimg[n])
 
   for(t in base_mappimg[[base]]){
 
+    periodo <- dts_validate_fonte_tipo(base,t)$periodicidade
+
     uf <- sample(ufs,1)
-    per <- sample(data,1)
+
+    if(periodo == 'anual'){
+      per <- sample(data_ano,1)
+    }
+
+    if(base == 'PCE'){
+      uf <- 'MG'
+    }
 
     if(t %in% c('EE','GM','AB','ABO',"SAD",'CIHA','CC','CM','PN','HC')){
       uf <- 'SP'
@@ -352,6 +389,20 @@ for( n in 1:length(base_mappimg)) {
     if(t %in% c('CR')){
       uf <- 'SP'
       per <- 201004
+    }
+
+    if(base %in% 'PNI'){
+      uf <- 'MA'
+      per <- 2007
+
+
+    }
+    if(t %in% c('PO') | base %in% c('SINAN','SINASC')){
+      uf <- 'BR'
+      per <- 2019
+    }
+    if(t %in% 'AIDA'){
+      per <- 2014
     }
 
 

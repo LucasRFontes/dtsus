@@ -59,18 +59,29 @@ dts_validate_fonte_tipo <- function(fonte = NA, tipo = NA){
       stop('ERRO - Um TIPO desconhecido foi selecionado.')
     }
   }
+
+  # verificando se a fonte e anual ou mensal
+  font_anual <- c('ESUS','PCE','PNI','PO','RESP','SIM','DO','SINAN','SINASC')
+
+  if(fonte %in% font_anual){
+    periodicidade <- 'anual'
+  }else{
+    periodicidade <- 'mensal'
+  }
+
   return(list(fonte = fonte,
-              tipo = tipo))
+              tipo = tipo,
+              periodicidade = periodicidade))
 }
 
 # uf
 dts_validate_uf <- function(uf = NA){
 
   # lista com os estados
-  ufs <- c(
+  ufs <- c("BR",
     "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA",
     "MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN",
-    "RS","RO","RR","SC","SP","SE","TO"
+    "RS","RO","RR","SC","SP","SE","TO",'IG'
   )
 
   if(all(is.na(uf))){
@@ -96,37 +107,60 @@ dts_validate_uf <- function(uf = NA){
 }
 
 # Data
-dts_validate_data <- function(x) {
+dts_validate_data <- function(x,periodicidade) {
 
   # Remover espacos antes/depois
   x <- as.character(x)
   x <- trimws(x)
   # Verificar se tem exatamente 6 digitos
-  if (!grepl("^[0-9]{6}$", x)) {
-    stop("A data deve estar no formato AAAAMM (ex: 202412).")
+  if(periodicidade =='mensal'){
+    if (!grepl("^[0-9]{6}$", x)) {
+      stop("A data deve estar no formato AAAAMM (ex: 202412).")
+    }
+
+    # Separar ano e mes
+    ano <- substr(x, 1, 4)
+    mes <- substr(x, 5, 6)
+
+    # Validar ano
+    if (as.integer(ano) <= 1988 |
+        as.integer(ano) > as.integer(format(Sys.Date(), "%Y"))) {
+      stop("O ano não pode ser menor que 1988 e não pode ser maior que a data atual.")
+    }
+
+
+    # Validar mes
+    if (!(mes %in% sprintf("%02d", 1:12))) {
+      stop("O mês deve ser entre 01 e 12.")
+    }
+
+    # Retornar como lista ou tibble
+    return(list(
+      ano = as.integer(ano),
+      mes = as.integer(mes)
+    ))
   }
 
-  # Separar ano e mes
-  ano <- substr(x, 1, 4)
-  mes <- substr(x, 5, 6)
+  if(periodicidade =='anual'){
+    if (!grepl("^[0-9]{4}$", x)) {
+      stop("Para esta fonte a data deve estar no formato AAAA (ex: 2024).")
+    }
 
-  # Validar ano
-  if (as.integer(ano) <= 1988 |
-      as.integer(ano) > as.integer(format(Sys.Date(), "%Y"))) {
-    stop("O ano não pode ser menor que 1988 e não pode ser maior que a data atual.")
+    # Separar ano e mes
+    ano <- x
+
+    # Validar ano
+    if (as.integer(ano) <= 1988 |
+        as.integer(ano) > as.integer(format(Sys.Date(), "%Y"))) {
+      stop("O ano não pode ser menor que 1988 e não pode ser maior que a data atual.")
+    }
+
+    # Retornar como lista ou tibble
+    return(list(
+      ano = as.integer(ano)
+    ))
   }
 
-
-  # Validar mes
-  if (!(mes %in% sprintf("%02d", 1:12))) {
-    stop("O mês deve ser entre 01 e 12.")
-  }
-
-  # Retornar como lista ou tibble
-  return(list(
-    ano = as.integer(ano),
-    mes = as.integer(mes)
-  ))
 }
 
 # Valida a pasta que armazena o dbc
@@ -147,34 +181,69 @@ dts_validate_dbc <- function(save.dbc, pasta.dbc) {
 }
 
 # cria Sequencia das datas
-dts_seq_data <- function(Data_inicio,Data_fim){
+dts_seq_data <- function(Data_inicio, Data_fim){
 
-  # mes inicial
-  inicio <- as.Date(paste0(Data_inicio$ano, "-", Data_inicio$mes, "-01"))
+  # inicio
+  if(!is.null(Data_inicio$mes)){
+    inicio <- as.Date(sprintf("%04d-%02d-01", Data_inicio$ano, Data_inicio$mes))
+  } else {
+    inicio <- as.Date(sprintf("%04d-01-01", Data_inicio$ano))
+  }
 
+  # se não tiver fim, retorna só inicio
+  if (is.null(Data_fim$ano) || is.na(Data_fim$ano)) {
+    seq_datas <- inicio
+  } else {
 
-  # mes final
-  if(!all(is.na(Data_fim))){
-    fim <- as.Date(paste0(Data_fim$ano, "-", Data_fim$mes, "-01"))
+    # fim
+    if(!is.null(Data_fim$mes)){
+      fim <- as.Date(sprintf("%04d-%02d-01", Data_fim$ano, Data_fim$mes))
+    } else {
+      fim <- as.Date(sprintf("%04d-01-01", Data_fim$ano))
+    }
 
     # valida ordem
     if(inicio > fim){
-      stop("Data inicial maior que a final.")}
+      stop("Data inicial maior que a final.")
+    }
 
-    # gera sequencia mensal
-    seq_datas <- seq(inicio, fim, by = "month")
-
-  }else{
-    seq_datas <- inicio
+    # sequencia
+    if(!is.null(Data_inicio$mes)){
+      seq_datas <- seq(inicio, fim, by = "month")
+    } else {
+      seq_datas <- seq(inicio, fim, by = "year")
+    }
   }
 
-  # voltar para AAAAMM
-  seq_datas <- format(seq_datas, "%Y%m")
+  # formatar retorno
+  if(!is.null(Data_inicio$mes)){
+    seq_datas <- format(seq_datas, "%Y%m")
+  } else {
+    seq_datas <- format(seq_datas, "%Y")
+  }
+
   return(seq_datas)
 }
 
 # Cria o DF que gerencia os arquivos
+
 dts_files_wb <- function(fonte,tipo,uf,sequencia_datas){
+
+  # Preparando lista de arquivos para download
+  files <- data.frame(fonte,tipo,uf,sequencia_datas)
+
+  # Cria o nome do arquivo
+  files$nome_arquivo <- paste0(files$tipo,
+                               ifelse(files$uf !='BR'|
+                                       ( files$uf == 'BR' & files$tipo %in% c('DN','DCCR','PO')),files$uf,''), #nao aparece no nome do arquivo
+                               ifelse(files$fonte %in% c('SINASC','PO'),files$sequencia_datas,substr(files$sequencia_datas,3,6))
+  ) # Criando o nome do arquivo
+  return(files)
+
+}
+
+# gera os links
+dts_files_lnk <- function(files){
 
   # Fontes de dados disponiveis para download
   base_mappimg <- list(
@@ -196,38 +265,49 @@ dts_files_wb <- function(fonte,tipo,uf,sequencia_datas){
     SISPRENATAL = 'SISPRENATAL/201201_/Dados/'
   )
 
-  # Fontes cuja atualizacao e anual
-  font_anual <- c('ESUS','PCE','PO','RESP','SIM','DO','SINAN','SINASC')
 
-  lnk <- paste0("ftp://ftp.datasus.gov.br/dissemin/publicos/",
-                base_mappimg[[fonte]]) # criando o link de acesso ao MS
+  files$lnk <- paste0(
+    "ftp://ftp.datasus.gov.br/dissemin/publicos/",
+    unlist(base_mappimg[files$fonte])
+  )
 
-  ## Fontes cuja a URL varia de acordo com o tipo
-  if(fonte == 'CNES'){
-    lnk <- paste0(lnk,tipo,'/')
-    }
 
-  # Preparando lista de arquivos para download
-  files <- data.frame(fonte,tipo,uf,sequencia_datas,lnk)
-
-  files$lnk_compl <- mapply(function(fonte, ano) {
+  # MAPEAMENTO
+  files$lnk_compl <- mapply(function(fonte, ano,tipo) {
+    ano <- as.integer(ano)
 
     # Apenas SIH e SIA possuem regra
-    if (!fonte %in% c("SIH", "SIA")) return(NA_character_)
+    if(!fonte %in% c('CNES',"SIH", "SIA",'SINAN','SINASC')) return(NA_character_)
 
-    if (ano < 2008) {
-      if (fonte == "SIH") return("199201_200712/Dados/")
-      if (fonte == "SIA") return("199407_200712/Dados")
+    # CNES
+    if(fonte =='CNES') return(paste0(tipo,'/'))
+
+    # Regra específica SINAN
+    if(fonte == "SINAN") return("FINAIS/")
+
+    # Regra SINASC
+    if( fonte == 'SINASC'){
+      if(ano <1996){
+        return("1994_1995/Dados/DNRES/")
+      }else{
+        return('1996_/Dados/DNRES/')
+      }
     }
 
-    return("200801_/Dados/")
+    if(fonte == SIM){
+      # TERMINAR
+    }
 
-  }, fonte = files$fonte, ano = substr(files$sequencia_datas, 1, 4))
+
+    if(ano < 2008){
+      if (fonte == "SIH") return("199201_200712/Dados/")
+      if (fonte == "SIA") return("199407_200712/Dados/")
+    } return("200801_/Dados/")
+
+  }, fonte = files$fonte, tipo = files$tipo ,ano = substr(files$sequencia_datas, 1, 4))
 
 
   files$lnk_final <- ifelse(is.na(files$lnk_compl),files$lnk,paste0(files$lnk,files$lnk_compl))# Criando o link final
-  files$nome_arquivo <- paste0(files$tipo,files$uf,substr(files$sequencia_datas,3,6)) # Criando o nome do arquivo
-
 
   ### Verifica quais arquivos estao disponiveris para download ###
   lista_arquivos <- data.frame() # lista dos arquivos a ser baixados
@@ -243,7 +323,7 @@ dts_files_wb <- function(fonte,tipo,uf,sequencia_datas){
 
     })
 
-    ncaract <- nchar(tipo)+6 # numeros de caracteres q o nome do arquivo tem (fonte varia entre 2 e 3 caract)
+    ncaract <- nchar(files$nome_arquivo[1]) # numeros de caracteres q o nome do arquivo tem (fonte varia entre 2 e 3 caract)
 
     arquivos <- data.frame(arquivos = gsub("\r","",arquivos),
                            nome_arquivo = substr(arquivos,1,ncaract)) # transforma em data frame
@@ -257,8 +337,8 @@ dts_files_wb <- function(fonte,tipo,uf,sequencia_datas){
   }
 
   # Levando os arquivos a serem baixados para o data frame final
-  if(all(is.na(lista_arquivos))){
-    stop('Erro - TIPO / UF / PERIODO NAO DISPONIVEL  NO MOMENTO')
+  if(nrow(lista_arquivos) == 0){
+    stop('Erro - TIPO / UF / PERIODO NAO DISPONIVEL  NO MOMENTO', call. = FALSE)
   }else{
     files <- merge(files,lista_arquivos,by ='nome_arquivo',all.x = T)
     files$arquivos[is.na(files$arquivos)] <- NA
@@ -271,6 +351,8 @@ dts_files_wb <- function(fonte,tipo,uf,sequencia_datas){
   return(files)
 
 }
+
+
 
 # Valida o filtro e aplica se estiver ok
 dts_filter_Df <- function(filtro, df) {
@@ -460,12 +542,13 @@ dtsus_download <- function(
   font_valid <- dts_validate_fonte_tipo(fonte,tipo) # Valida fonte e tipo
   fonte <- font_valid$fonte
   tipo <- font_valid$tipo
+  prdcd <- font_valid$periodicidade
   uf <- dts_validate_uf(uf) # valida a UF
 
-  Data_inicio <- dts_validate_data(Data_inicio) # Validando se a data foi preenchida corretamente
+  Data_inicio <- dts_validate_data(Data_inicio,periodicidade = prdcd) # Validando se a data foi preenchida corretamente
 
   if(!is.null(Data_fim)){
-    Data_fim <- dts_validate_data(Data_fim)
+    Data_fim <- dts_validate_data(Data_fim,periodicidade = prdcd)
   } # Validando se a data FINAL foi preenchida corretamente
 
   #criando a sequencia das datas para realizar o downlad
@@ -483,6 +566,7 @@ dtsus_download <- function(
 
     # gera o df com os arquivos a serem baixados
     files <- dts_files_wb(fonte,tipo,uf,sequencia_datas)
+    files <- dts_files_lnk(files)
 
     # valida a pasta DBC
     pasta.dbc <- dts_validate_dbc(save.dbc,pasta.dbc)
