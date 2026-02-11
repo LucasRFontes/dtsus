@@ -1,11 +1,10 @@
 
-
 # Funcoes de validacao
 # Fonte
 dts_validate_fonte_tipo <- function(fonte = NA, tipo = NA){
 
   if (length(fonte) != 1 || is.na(fonte)) {
-    stop('ERRO - Selecione uma Fonte de dados do DATASUS')
+    stop("[ERRO] Informe uma fonte válida do DATASUS (ex: CNES, SIH, SIA, SIM).", call. = FALSE)
   }
 
   fonte <- toupper(trimws(fonte))
@@ -36,32 +35,47 @@ dts_validate_fonte_tipo <- function(fonte = NA, tipo = NA){
     SISPRENATAL = 'PN'
   )
 
-  # Validacao da fonte
   if (!fonte %in% names(base_mappimg)) {
-    stop('ERRO - Foi selecionada uma FONTE inválida.')
+    stop(sprintf(
+      "[ERRO] Fonte inválida: '%s'. Fontes disponíveis: %s",
+      fonte, paste(names(base_mappimg), collapse = ", ")
+    ), call. = FALSE)
   }
 
   tp <- base_mappimg[[fonte]]
 
   # Se so existir um tipo possível
   if (length(tp) == 1) {
+    if (!is.na(tipo) && toupper(trimws(tipo)) != tp) {
+      warning(sprintf(
+        "[AVISO] Fonte '%s' só possui tipo '%s'. Ignorando tipo informado: '%s'",
+        fonte, tp, tipo
+      ), call. = FALSE)
+    }
     tipo <- tp
 
   } else {
     tipo <- toupper(trimws(tipo))
 
     if(all(is.na(tipo)) || length(tipo) != 1) {
-      stop('ERRO - Insira um TIPO válido para esta fonte.')
+      stop(sprintf(
+        "[ERRO] Para a fonte '%s', informe um tipo válido. Tipos disponíveis: %s",
+        fonte,
+        paste(tp, collapse = ", ")
+      ), call. = FALSE)
     }
 
 
     if (!tipo %in% tp) {
-      stop('ERRO - Um TIPO desconhecido foi selecionado.')
+      stop(sprintf(
+        "[ERRO] Tipo inválido para '%s': '%s'. Tipos disponíveis: %s",
+        fonte, tipo, paste(tp, collapse = ", ")
+      ), call. = FALSE)
     }
   }
 
   # verificando se a fonte e anual ou mensal
-  font_anual <- c('ESUS','PCE','PNI','PO','RESP','SIM','DO','SINAN','SINASC')
+  font_anual <- c('ESUS','PCE','PNI','PO','RESP','SIM','SINAN','SINASC')
 
   if(fonte %in% font_anual){
     periodicidade <- 'anual'
@@ -79,13 +93,13 @@ dts_validate_uf <- function(uf = NA){
 
   # lista com os estados
   ufs <- c("BR",
-    "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA",
-    "MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN",
-    "RS","RO","RR","SC","SP","SE","TO",'IG'
+           "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA",
+           "MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN",
+           "RS","RO","RR","SC","SP","SE","TO",'IG'
   )
 
   if(all(is.na(uf))){
-    warning("UF não informada. Todas as UFs serão utilizadas.")
+    warning("[AVISO] UF não informada. Serão utilizadas todas as UFs (incluindo BR).", call. = FALSE)
 
     return(ufs)}
 
@@ -97,7 +111,7 @@ dts_validate_uf <- function(uf = NA){
   if(length(erro)>0){
     stop(
       sprintf(
-        "UF inválida(s): %s. Use siglas válidas (ex: MG, SP, RJ).",
+        "[ERRO] UF inválida(s): %s. Use siglas válidas (ex: MG, SP, RJ).",
         paste(erro, collapse = ", ")
       ),
       call. = FALSE
@@ -115,7 +129,7 @@ dts_validate_data <- function(x,periodicidade) {
   # Verificar se tem exatamente 6 digitos
   if(periodicidade =='mensal'){
     if (!grepl("^[0-9]{6}$", x)) {
-      stop("A data deve estar no formato AAAAMM (ex: 202412).")
+      stop("[ERRO] Data inválida. Para bases mensais use AAAAMM (ex: 202412).", call. = FALSE)
     }
 
     # Separar ano e mes
@@ -125,13 +139,13 @@ dts_validate_data <- function(x,periodicidade) {
     # Validar ano
     if (as.integer(ano) <= 1988 |
         as.integer(ano) > as.integer(format(Sys.Date(), "%Y"))) {
-      stop("O ano não pode ser menor que 1988 e não pode ser maior que a data atual.")
+      stop("[ERRO] O ano não pode ser menor que 1988 e não pode ser maior que a data atual.",call. = FALSE)
     }
 
 
     # Validar mes
     if (!(mes %in% sprintf("%02d", 1:12))) {
-      stop("O mês deve ser entre 01 e 12.")
+      stop("[ERRO] Data inválida. Para bases mensais use AAAAMM (ex: 202412).", call. = FALSE)
     }
 
     # Retornar como lista ou tibble
@@ -143,7 +157,7 @@ dts_validate_data <- function(x,periodicidade) {
 
   if(periodicidade =='anual'){
     if (!grepl("^[0-9]{4}$", x)) {
-      stop("Para esta fonte a data deve estar no formato AAAA (ex: 2024).")
+      stop("[ERRO] Data inválida. Para bases anuais use AAAA (ex: 2024).", call. = FALSE)
     }
 
     # Separar ano e mes
@@ -152,7 +166,7 @@ dts_validate_data <- function(x,periodicidade) {
     # Validar ano
     if (as.integer(ano) <= 1988 |
         as.integer(ano) > as.integer(format(Sys.Date(), "%Y"))) {
-      stop("O ano não pode ser menor que 1988 e não pode ser maior que a data atual.")
+      stop("[ERRO] O ano não pode ser menor que 1988 e não pode ser maior que a data atual.",call. = FALSE)
     }
 
     # Retornar como lista ou tibble
@@ -166,13 +180,14 @@ dts_validate_data <- function(x,periodicidade) {
 # Valida a pasta que armazena o dbc
 dts_validate_dbc <- function(save.dbc, pasta.dbc) {
 
-   # Validando a pasta para receber o dbc
+  # Validando a pasta para receber o dbc
   if (!isTRUE(save.dbc)){return(NULL)}
   if (is.null(pasta.dbc) || !dir.exists(pasta.dbc)) {
-    warning(
-      paste("Pasta DBC não encontrada. Salvando arquivo DBC em:", getwd()),
-      call. = FALSE
-    )
+    warning(sprintf(
+      "[AVISO] Pasta de saída não encontrada. Salvando DBC em: %s",
+      normalizePath(getwd(), winslash = "/", mustWork = FALSE)
+    ), call. = FALSE)
+
     return(getwd())
   }else{
     return(pasta.dbc)
@@ -191,7 +206,7 @@ dts_seq_data <- function(Data_inicio, Data_fim){
   }
 
   # se não tiver fim, retorna só inicio
-  if (is.null(Data_fim$ano) || is.na(Data_fim$ano)) {
+  if (is.null(Data_fim) || is.null(Data_fim$ano) || is.na(Data_fim$ano)) {
     seq_datas <- inicio
   } else {
 
@@ -204,7 +219,7 @@ dts_seq_data <- function(Data_inicio, Data_fim){
 
     # valida ordem
     if(inicio > fim){
-      stop("Data inicial maior que a final.")
+      stop("[ERRO] Data_inicio não pode ser maior que Data_fim.", call. = FALSE)
     }
 
     # sequencia
@@ -230,13 +245,14 @@ dts_seq_data <- function(Data_inicio, Data_fim){
 dts_files_wb <- function(fonte,tipo,uf,sequencia_datas){
 
   # Preparando lista de arquivos para download
-  files <- data.frame(fonte,tipo,uf,sequencia_datas)
+  files <- data.frame(fonte,tipo,uf,sequencia_datas,stringsAsFactors = F)
 
   # Cria o nome do arquivo
   files$nome_arquivo <- paste0(files$tipo,
                                ifelse(files$uf !='BR'|
-                                       ( files$uf == 'BR' & files$tipo %in% c('DN','DCCR','PO')),files$uf,''), #nao aparece no nome do arquivo
-                               ifelse(files$fonte %in% c('SINASC','PO'),files$sequencia_datas,substr(files$sequencia_datas,3,6))
+                                        ( files$uf == 'BR' & files$tipo %in% c('DN','DCCR','PO')) |
+                                        ( files$uf == 'BR' & files$fonte %in% c('SINAN')),files$uf,''), #nao aparece no nome do arquivo
+                               ifelse(files$fonte %in% c('SINASC','PO')| files$tipo == 'DO',files$sequencia_datas,substr(files$sequencia_datas,3,6))
   ) # Criando o nome do arquivo
   return(files)
 
@@ -250,7 +266,7 @@ dts_files_lnk <- function(files){
     CIH = 'CIH/200801_201012/Dados/',
     CIHA ='CIHA/201101_/Dados/',
     CNES ='CNES/200508_/Dados/', #DEPENDE DO TIPO
-    ESUS='ESUSNOTIFICA/DADOS/PRELIM/',
+    ESUS='ESUSNOTIFICA/DADOS/',
     PCE ='PCE/Dados/',
     PNI ='PNI/DADOS/',
     PO ='painel_oncologia/Dados/',
@@ -276,14 +292,12 @@ dts_files_lnk <- function(files){
   files$lnk_compl <- mapply(function(fonte, ano,tipo) {
     ano <- as.integer(ano)
 
-    # Apenas SIH e SIA possuem regra
-    if(!fonte %in% c('CNES',"SIH", "SIA",'SINAN','SINASC')) return(NA_character_)
+    # fontes com regras diferenciadas para pastas
+    if(!fonte %in% c('CNES',"SIH", "SIA",'SINASC','SIM')) return(NA_character_)
 
     # CNES
     if(fonte =='CNES') return(paste0(tipo,'/'))
 
-    # Regra específica SINAN
-    if(fonte == "SINAN") return("FINAIS/")
 
     # Regra SINASC
     if( fonte == 'SINASC'){
@@ -294,15 +308,30 @@ dts_files_lnk <- function(files){
       }
     }
 
-    if(fonte == SIM){
-      # TERMINAR
+    if(fonte == 'SIM'){
+      if(ano <1996){
+        if(tipo == 'DO'){
+          return('CID9/DORE/')
+        }else{
+          return('CID9/DOFET/')
+        }
+      }else{
+        if(tipo == 'DO'){
+          return('CID10/DORES/')
+        }else{
+          return('CID10/DOFET/')
+        }
+      }
+
     }
 
-
-    if(ano < 2008){
-      if (fonte == "SIH") return("199201_200712/Dados/")
-      if (fonte == "SIA") return("199407_200712/Dados/")
-    } return("200801_/Dados/")
+    if (fonte %in% c("SIH", "SIA")) {
+      if (ano < 2008) {
+        if (fonte == "SIH") return("199201_200712/Dados/")
+        if (fonte == "SIA") return("199407_200712/Dados/")
+      }
+      return("200801_/Dados/")
+    }
 
   }, fonte = files$fonte, tipo = files$tipo ,ano = substr(files$sequencia_datas, 1, 4))
 
@@ -310,42 +339,90 @@ dts_files_lnk <- function(files){
   files$lnk_final <- ifelse(is.na(files$lnk_compl),files$lnk,paste0(files$lnk,files$lnk_compl))# Criando o link final
 
   ### Verifica quais arquivos estao disponiveris para download ###
-  lista_arquivos <- data.frame() # lista dos arquivos a ser baixados
+  lista_arquivos <- list() # lista dos arquivos a ser baixados
+  ncaract <- nchar(files$nome_arquivo[1]) # numeros de caracteres q o nome do arquivo tem (fonte varia entre 2 e 3 caract)
+
 
   for(l in unique(files$lnk_final)){
     arquivos <- tryCatch({
       unlist(strsplit(RCurl::getURL(url = l, ftp.use.epsv = TRUE, dirlistonly = TRUE), "\n")) # gera lista de arquivos disponiveis
     }, error=function(e){
-      stop(
-        paste("Problema ao acessar o FTP:", l),
-        call. = FALSE
-      )
+      stop(sprintf(
+        "[ERRO] Não foi possível acessar o FTP do DATASUS: %s",
+        l
+      ), call. = FALSE)
+
 
     })
 
-    ncaract <- nchar(files$nome_arquivo[1]) # numeros de caracteres q o nome do arquivo tem (fonte varia entre 2 e 3 caract)
+    # Verificando se existe a pasta FINAIS e PRELIM
+    if('FINAIS\r' %in% arquivos | 'PRELIM\r' %in% arquivos){
+      FINAIS <- data.frame(arquivos = NA,nome_arquivo = NA, obs = NA,stringsAsFactors = F)
+      PRELIM <- data.frame(arquivos = NA,nome_arquivo = NA, obs = NA,stringsAsFactors = F)
 
-    arquivos <- data.frame(arquivos = gsub("\r","",arquivos),
-                           nome_arquivo = substr(arquivos,1,ncaract)) # transforma em data frame
+
+      if('FINAIS\r' %in% arquivos){
+
+        FINAIS <- unlist(strsplit(RCurl::getURL(url = paste0(l,"FINAIS/"), ftp.use.epsv = TRUE, dirlistonly = TRUE), "\n"))
+        FINAIS <- data.frame(arquivos = gsub("\r","",FINAIS),
+                             nome_arquivo = substr(FINAIS,1,ncaract),
+                             obs = 'FINAIS',
+                             stringsAsFactors = F)
+
+      }
+      if('PRELIM\r' %in% arquivos){
+        PRELIM <- unlist(strsplit(RCurl::getURL(url = paste0(l,"PRELIM/"), ftp.use.epsv = TRUE, dirlistonly = TRUE), "\n"))
+        PRELIM <- data.frame(arquivos = gsub("\r","",PRELIM),
+                             nome_arquivo = substr(PRELIM,1,ncaract),
+                             obs = 'PRELIM',
+                             stringsAsFactors = F)
+      }
+      arquivos <- rbind(FINAIS,PRELIM)
+      arquivos <- arquivos[!is.na(arquivos$nome_arquivo), ]  # Remove NAs
+
+    }else{
+      arquivos <- data.frame(arquivos = gsub("\r","",arquivos),
+                             nome_arquivo = substr(arquivos,1,ncaract),
+                             obs = NA,stringsAsFactors = F) # transforma em data frame
+
+    }
 
 
     df_temp <- files[files$lnk_final == l,] # dataframe temporario correspondente ao arquivo a ser baixado
 
     arquivos <- arquivos[arquivos$nome_arquivo %in% df_temp$nome_arquivo,]
 
-    lista_arquivos <- rbind(lista_arquivos,arquivos)
+    lista_arquivos[[length(lista_arquivos) + 1]] <- arquivos
+
+  }
+
+  if (length(lista_arquivos) > 0) {
+    lista_arquivos <- do.call(rbind, lista_arquivos)
+  } else {
+    lista_arquivos <- data.frame()  # data.frame vazio explícito
   }
 
   # Levando os arquivos a serem baixados para o data frame final
   if(nrow(lista_arquivos) == 0){
-    stop('Erro - TIPO / UF / PERIODO NAO DISPONIVEL  NO MOMENTO', call. = FALSE)
+    stop("[ERRO] Nenhum arquivo encontrado para os parâmetros informados (fonte/tipo/UF/período).", call. = FALSE)
   }else{
     files <- merge(files,lista_arquivos,by ='nome_arquivo',all.x = T)
     files$arquivos[is.na(files$arquivos)] <- NA
   }
 
   # Realizando o download das bases
-  files$lnk_final <- paste0(files$lnk_final,files$arquivos)
+
+  files$lnk_final<- mapply(function(lnk_final, arquivos,obs) {
+    out <- ifelse(is.na(obs),
+                        paste0(lnk_final,arquivos),
+                        paste0(lnk_final,obs,'/',arquivos))
+
+    return(as.character(out))
+
+
+  },lnk_final = files$lnk_final, arquivos = files$arquivos,obs = files$obs)
+
+
 
 
   return(files)
@@ -354,28 +431,50 @@ dts_files_lnk <- function(files){
 
 
 
-# Valida o filtro e aplica se estiver ok
 dts_filter_Df <- function(filtro, df) {
-  if (!is.null(filtro)) {
-    if (!is.list(filtro) ||
-        !all(c("coluna", "valor") %in% names(filtro))){
-      warning("Filtro inválido. Esperado uma lista com 'coluna' e 'valor'. Filtro não aplicado.",call. = FALSE)
 
-      } else if (all(is.null(filtro$coluna))) {
-        warning("Filtro inválido. Campo Coluna não preenchido. Filtro não aplicado.",call. = FALSE)
+  # Sem filtro = retorna sem warning
+  if (is.null(filtro)) return(df)
 
-        } else if (!filtro$coluna %in% names(df)) {
-          warning("Filtro inválido. Coluna selecionada não encontrada na base. Filtro não aplicado.",call. = FALSE)
-
-          } else if (is.null(filtro$valor)) {
-            warning("Filtro inválido. Nenhum valor informado. Filtro não aplicado.",call. = FALSE)
-
-            } else {
-              df <- df[as.character(df[[filtro$coluna]]) %in%
-                         as.character(filtro$valor),,drop = FALSE]}
+  # Estrutura mínima
+  if (!is.list(filtro) || !all(c("coluna", "valor") %in% names(filtro))) {
+    warning("[AVISO] Filtro inválido. Esperado uma lista com 'coluna' e 'valor'. Filtro não aplicado.", call. = FALSE)
+    return(df)
   }
-  return(df)
+
+  # Normaliza
+  filtro$coluna <- trimws(as.character(filtro$coluna))
+
+  # Coluna vazia
+  if (is.null(filtro$coluna) || is.na(filtro$coluna) || filtro$coluna == "") {
+    warning("[AVISO] Filtro inválido. Campo 'coluna' não preenchido. Filtro não aplicado.", call. = FALSE)
+    return(df)
+  }
+
+  # Coluna não existe
+  if (!filtro$coluna %in% names(df)) {
+    warning("[AVISO] Filtro inválido. Coluna selecionada não encontrada na base. Filtro não aplicado.", call. = FALSE)
+    return(df)
+  }
+
+  # Valor vazio
+  if (is.null(filtro$valor) || length(filtro$valor) == 0) {
+    warning("[AVISO] Filtro inválido. Nenhum valor informado. Filtro não aplicado.", call. = FALSE)
+    return(df)
+  }
+
+  # Aplicando filtro
+  df_out <- df[as.character(df[[filtro$coluna]]) %in% as.character(filtro$valor), , drop = FALSE]
+
+  # Se filtrou e zerou
+  if (nrow(df_out) == 0) {
+    warning("[AVISO] O filtro foi aplicado, mas nenhum registro foi encontrado.", call. = FALSE)
+  }
+
+  return(df_out)
 }
+
+
 
 # selecionando apenas as colunas necessarias
 dts_select_col <- function(colunas, df) {
@@ -384,13 +483,22 @@ dts_select_col <- function(colunas, df) {
     return(df)}
   faltantes <- setdiff(colunas, names(df))
   if (length(faltantes) > 0) {
-    warning(sprintf("Coluna(s) ignorada(s): %s",paste(faltantes, collapse = ", ")),call. = FALSE)
+    warning(sprintf(
+      "[AVISO] Coluna(s) não encontrada(s) e ignorada(s): %s",
+      paste(faltantes, collapse = ", ")
+    ), call. = FALSE)
   }
 
   cols_ok <- intersect(colunas, names(df))
+
+  if (length(cols_ok) == 0) {
+    warning("[AVISO] Nenhuma coluna válida encontrada.", call. = FALSE)
+    return(df)
+  }
+
   if(length(cols_ok) > 0){
     df[, cols_ok, drop = FALSE]
-    }else{df}
+  }else{df}
 }
 
 
@@ -428,12 +536,13 @@ dtsus_download_aux <- function(
       )
 
       files$status_download[i] <- "Download realizado"
-      cat("✔ Download realizado:", l, "\n")
+      message("[INFO] Download realizado: ", l)
 
     }, error = function(e) {
 
       files$status_download[i] <- "Erro no download"
-      cat("✖ Erro em:", l, "->", conditionMessage(e), "\n")
+      message("[ERRO] Falha no download: ", l)
+      message("[ERRO] Motivo: ", conditionMessage(e))
 
       temp <- NULL
     })
@@ -452,9 +561,12 @@ dtsus_download_aux <- function(
           file.path(pasta.dbc, basename(files$arquivos[i])),
           overwrite = TRUE
         )
-        cat("✔ Arquivo DBC salvo em", pasta.dbc, "\n")
+        message("[INFO] Arquivo DBC salvo em: ", pasta.dbc)
       }, error = function(e) {
-        cat("✖ Erro ao salvar DBC\n")
+        warning(sprintf(
+          "[AVISO] Não foi possível salvar o DBC em: %s",
+          pasta.dbc
+        ), call. = FALSE)
       })
     }
 
@@ -477,11 +589,14 @@ dtsus_download_aux <- function(
         data_list[[length(data_list) + 1]] <- data_temp
         files$status_load[i] <- "Carregado"
 
-        cat("✔ Arquivo lido:", l, "\n")
+        message("Arquivo lido: ", l)
 
       }, error = function(e) {
         files$status_load[i] <- "Erro na leitura"
-        cat("✖ Arquivo não carregado:", l, "\n")
+        warning(sprintf(
+          "[AVISO] Arquivo baixado mas não carregado: %s",
+          l
+        ), call. = FALSE)
       })
     }
 
@@ -510,7 +625,6 @@ dtsus_download_aux <- function(
 #' @param uf A specific UF or a vector of UFs specified ny their abbreviations.
 #' @param Data_inicio Start year and month in the format yyyymm.
 #' @param Data_fim End year and month in the format yyyymm.
-#' @param origem This argument is internally fixed and cannot be modified by the user.
 #' @param open Logical. If TRUE, the generated file is opened automatically.
 #' @param filtro A filter specification indicating the column and the values to be used for filtering.
 #' @param colunas A specific column or a vector of columns of interest.
@@ -528,13 +642,12 @@ dtsus_download <- function(
     uf = NA,
     Data_inicio = NA,
     Data_fim = NULL,
-    origem = 'datasus',
     open = TRUE,
-    filtro =list(coluna = NULL,valor = NULL),
+    filtro =NULL,
     colunas = NULL,
     save.dbc = FALSE,
     pasta.dbc = NULL
-    ){
+){
 
   # Ajustando possiveis erros de digitação na fonte e tipo
 
@@ -554,39 +667,33 @@ dtsus_download <- function(
   #criando a sequencia das datas para realizar o downlad
   sequencia_datas <- dts_seq_data(Data_inicio = Data_inicio,Data_fim = Data_fim)
 
-  ## Caso a origem seja o proprio datasus - online
-  if(origem == 'datasus'){
-
-    # Testa a conexao com a internet
-    if(curl::has_internet() == T){
-      message('Internet: Ok')
-    }else{
-      stop('ERRO -  Verifique sua conexão com a internet')
-    }
-
-    # gera o df com os arquivos a serem baixados
-    files <- dts_files_wb(fonte,tipo,uf,sequencia_datas)
-    files <- dts_files_lnk(files)
-
-    # valida a pasta DBC
-    pasta.dbc <- dts_validate_dbc(save.dbc,pasta.dbc)
-
-    res <-dtsus_download_aux(files,save.dbc,pasta.dbc,open,filtro,colunas)
-    files <- res$files
-
-    data <- if (length(res$data) > 0) {
-      do.call(rbind, res$data)
-    } else {
-      NULL
-    }
-
-
-
-    return(list(files = files,dados = data))
+  # Testa a conexao com a internet
+  if(curl::has_internet() == T){
+    message("[INFO] Conexão com a internet: OK")
+  }else{
+    stop("[ERRO] Sem conexão com a internet. Verifique sua rede e tente novamente.", call. = FALSE)
   }
+
+  # gera o df com os arquivos a serem baixados
+  files <- dts_files_wb(fonte,tipo,uf,sequencia_datas)
+  files <- dts_files_lnk(files)
+
+  # valida a pasta DBC
+  pasta.dbc <- dts_validate_dbc(save.dbc,pasta.dbc)
+
+  res <-dtsus_download_aux(files,save.dbc,pasta.dbc,open,filtro,colunas)
+  files <- res$files
+
+  data <- if (length(res$data) > 0) {
+    do.call(rbind, res$data)
+  } else {
+    NULL
+  }
+
+
+
+  return(list(files = files,dados = data))
+
 }
-
-
-
 
 

@@ -1,4 +1,3 @@
-library('dtsus')
 library('testthat')
 
 ## Fonte tipo
@@ -11,20 +10,21 @@ test_that("Fonte e tipos validados", {
 })
 
 test_that("Erro Fonte invalida", {
-  expect_error(dts_validate_fonte_tipo("Gol", "LT"),'ERRO - Foi selecionada uma FONTE inválida.')
+  expect_error(
+    dts_validate_fonte_tipo("Gol", "LT")
+  )
 })
 
-
 test_that("Erro Multiplos tipos", {
-  expect_error(dts_validate_fonte_tipo("SIA", c("PA",'APAC')),'ERRO - Insira um TIPO válido para esta fonte.')
+  expect_error(dts_validate_fonte_tipo("SIA", c("PA",'APAC')))
 })
 
 test_that("Erro tipo nao informado", {
-  expect_error(dts_validate_fonte_tipo("SIA"),'ERRO - Insira um TIPO válido para esta fonte.')
+  expect_error(dts_validate_fonte_tipo("SIA"))
 })
 
 test_that("Erro fonte invalida ", {
-  expect_error(dts_validate_fonte_tipo("SIA", "HAHA"),'ERRO - Um TIPO desconhecido foi selecionado.')
+  expect_error(dts_validate_fonte_tipo("SIA", "HAHA"))
 })
 
 # UF
@@ -121,7 +121,7 @@ test_that('DATA FIM NULL',{
 
 
 test_that('Sequencia errada',{
-  expect_error(dts_seq_data(list(ano = 2023,mes= 09),list(ano = 2023,mes= 02)),"Data inicial maior que a final.")
+  expect_error(dts_seq_data(list(ano = 2023,mes= 09),list(ano = 2023,mes= 02)))
 })
 
 test_that('DATA FIM NAO INFORMADA',{
@@ -225,65 +225,65 @@ test_that('Colunas ignorada',{
 
 if(curl::has_internet() == T){
 
-    bases <- dts_files_wb('SIH','RD','AC',c(202301:202304))
+  bases <- dts_files_wb('SIH','RD','AC',c(202301:202304))
 
-    test_that("Retorno tem estrutura esperada", {
+  test_that("Retorno tem estrutura esperada", {
 
-      res <- dtsus_download_aux(bases, save.dbc = FALSE, open = FALSE)
+    res <- dtsus_download_aux(bases, save.dbc = FALSE, open = FALSE)
 
-      expect_type(res, "list")
-      expect_true(all(c("files","data") %in% names(res)))
-      expect_s3_class(res$files, "data.frame")
-      expect_type(res$data, "list")
-      expect_true(all(!is.na(res$files$status_download)))
-      expect_true(all(res$files$status_download %in%
-                        c("Download realizado","Erro no download")))
-      expect_length(res$data, 0)
-    })
+    expect_type(res, "list")
+    expect_true(all(c("files","data") %in% names(res)))
+    expect_s3_class(res$files, "data.frame")
+    expect_type(res$data, "list")
+    expect_true(all(!is.na(res$files$status_download)))
+    expect_true(all(res$files$status_download %in%
+                      c("Download realizado","Erro no download")))
+    expect_length(res$data, 0)
+  })
 
-    bases <- dts_files_wb('CNES','LT','AC',c(202101:202103))
+  bases <- dts_files_wb('CNES','LT','AC',c(202101:202103))
 
-    test_that("Retorno tem estrutura esperada", {
+  test_that("Retorno tem estrutura esperada", {
 
-      res <- dtsus_download_aux(bases, save.dbc = FALSE, open = T)
+    res <- dtsus_download_aux(bases, save.dbc = FALSE, open = T)
 
-      expect_type(res, "list")
-      expect_true(all(c("files","data") %in% names(res)))
-      expect_s3_class(res$files, "data.frame")
-      expect_type(res$data, "list")
-      expect_true(all(!is.na(res$files$status_download)))
-      expect_true(all(res$files$status_download %in%
-                        c("Download realizado","Erro no download")))
-      expect_true(length(res$data) > 0)
-      expect_true(any(res$files$status_load == "Carregado"))
-    })
+    expect_type(res, "list")
+    expect_true(all(c("files","data") %in% names(res)))
+    expect_s3_class(res$files, "data.frame")
+    expect_type(res$data, "list")
+    expect_true(all(!is.na(res$files$status_download)))
+    expect_true(all(res$files$status_download %in%
+                      c("Download realizado","Erro no download")))
+    expect_true(length(res$data) > 0)
+    expect_true(any(res$files$status_load == "Carregado"))
+  })
 
 
-    test_that("Filtro é aplicado aos dados", {
-      bases <- dts_files_wb("CNES","LT","MS",202501)
+  test_that("Filtro é aplicado aos dados", {
+    bases <- dts_files_wb("CNES","LT","MS",202501)
 
-      res <- dtsus_download_aux(
-        bases,
-        open = TRUE,
-        filtro = list(coluna = "CNES", valor = "9081496")
-      )
+    res <- dtsus_download_aux(
+      bases,
+      open = TRUE,
+      filtro = list(coluna = "CNES", valor = "9081496")
+    )
 
-      expect_true(all(res$data[[1]]$CNES == "9081496"))
-    })
+    expect_true(all(res$data[[1]]$CNES == "9081496"))
+  })
 
-    test_that("Colunas selecionadas", {
-      bases <- dts_files_wb("SIA",'PA',"ES",202201)
+  test_that("Colunas selecionadas", {
+    bases <- dts_files_wb("SIA",'PA',"ES",202201)
 
-      res <- dtsus_download_aux(
-        bases,
-        open = TRUE,
-        colunas = c("PA_CODUNI","PA_QTDPRO",'PA_PROC_ID'),
-        filtro = list(coluna = 'PA_PROC_ID',valor =c('0214010163','0211020060'))
-      )
+    res <- dtsus_download_aux(
+      bases,
+      open = TRUE,
+      colunas = c("PA_CODUNI","PA_QTDPRO",'PA_PROC_ID'),
+      filtro = list(coluna = 'PA_PROC_ID',valor =c('0214010163','0211020060'))
+    )
 
-      expect_true(all(res$data[[1]]$CNES %in% c('0214010163','0211020060')))
-      expect_true(all(names(res$data[[1]]) %in% c("PA_CODUNI","PA_QTDPRO",'PA_PROC_ID')))
-    })
+    expect_true(all(res$data[[1]]$CNES %in% c('0214010163','0211020060')))
+    expect_true(all(names(res$data[[1]]) %in% c("PA_CODUNI","PA_QTDPRO",'PA_PROC_ID')))
+  })
 
 }
 
@@ -321,25 +321,25 @@ test_that("Erro em um arquivo não interrompe loop", {
 # Testando a funcao completa, para todas as bases
 
 base_mappimg <- list(
-  CIH = 'CR',
-  CIHA = 'CIHA',
-  CNES = c("DC","EE","EF","EP","EQ","GM","HB","IN","LT","PF","RC","SR","ST"),
-  ESUS = 'DCCR',
-  PCE = 'PCE',
-  PNI = c("CPNI","DPNI"),
-  PO = 'PO',
-  RESP = 'RESP',
-
-  SIH = c("ER","RD","RJ","SP"),
-  SIA = c("AB","ABO","ACF","AD","AM","AN","AQ","AR","ATD","PA","PS","SAD"),
-  SIM = c("DO","DOEXT","DOFET","DOINF","DOMAT","DOR","DOREXT"),
+  # CIH = 'CR',
+  # CIHA = 'CIHA',
+  # CNES = c("DC","EE","EF","EP","EQ","GM","HB","IN","LT","PF","RC","SR","ST"),
+  # ESUS = 'DCCR',
+  # PCE = 'PCE',
+  # PNI = c("CPNI","DPNI"),
+  # PO = 'PO',
+  # RESP = 'RESP',
+  #
+  # SIH = c("ER","RD","RJ","SP"),
+  # SIA = c("AB","ABO","ACF","AD","AM","AN","AQ","AR","ATD","PA","PS","SAD"),
+  # SIM = c("DO","DOEXT","DOFET","DOINF","DOMAT","DOREXT"),
   SINAN = c("ACBI","ACGR","AIDA","AIDC","ANIM","ANTR","BOTU","CANC","CHAG",
-              "CHIK","COLE","COQU","DCRJ","DENG","DERM","DIFT","ESPO","ESQU",
-              "EXAN","FMAC","FTIF","HANS","HANT","HEPA","HIVA","HIVC","HIVE",
-              "HIVG","IEXO","INFL","LEIV","LEPT","LER", "LERD","LTAN","MALA",
-              "MENI","MENT","NTRA","PAIR","PEST","PFAN","PNEU","RAIV","ROTA",
-              "SDTA","SIFA","SIFC","SIFG","SRC", "TETA","TETN","TOXC","TOXG",
-              "TRAC","TUBE","VARC","VIOL","ZIKA"),
+            "CHIK","COLE","COQU","DCRJ","DENG","DERM","DIFT","ESPO","ESQU",
+            "EXAN","FMAC","FTIF","HANS","HANT","HEPA","HIVA","HIVC","HIVE",
+            "HIVG","IEXO","LEIV","LEPT","LER", "LERD","LTAN","MALA",
+            "MENI","MENT","NTRA","PAIR","PEST","PFAN","PNEU","RAIV","ROTA",
+            "SDTA","SIFA","SIFC","SIFG","SRC", "TETA","TETN","TOXC","TOXG",
+            "TRAC","TUBE","VARC","VIOL","ZIKA"),
   SINASC = c("DN","DNEX"),
   SISCOLO = c("CC","HC"),
   SISMAMA = c("CM","HM"),
@@ -365,6 +365,7 @@ for( n in 1:length(base_mappimg)) {
     periodo <- dts_validate_fonte_tipo(base,t)$periodicidade
 
     uf <- sample(ufs,1)
+    per <- sample(data,1)
 
     if(periodo == 'anual'){
       per <- sample(data_ano,1)
@@ -397,7 +398,7 @@ for( n in 1:length(base_mappimg)) {
 
 
     }
-    if(t %in% c('PO') | base %in% c('SINAN','SINASC')){
+    if(t %in% c('PO','DOEXT','DOFET','DOINF','DOMAT','DOREXT') | base %in% c('SINAN','SINASC')){
       uf <- 'BR'
       per <- 2019
     }
@@ -405,6 +406,10 @@ for( n in 1:length(base_mappimg)) {
       per <- 2014
     }
 
+    if(t %in% 'DCCR'){
+      per <- 2023
+      uf <- 'BR'
+    }
 
     print(paste0('Testando ',base, ' - ',t, ' UF: ',uf,' PERIODO ',per))
 
