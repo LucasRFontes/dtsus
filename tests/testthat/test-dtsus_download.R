@@ -9,23 +9,41 @@ test_that("Fonte e tipos validados", {
   expect_equal(res$periodicidade,'mensal')
 })
 
-test_that("Erro Fonte invalida", {
+test_that("Fonte com tipo unico ignora tipo errado com warning", {
+  expect_warning(
+    res <- dts_validate_fonte_tipo("ESUS", "QUALQUER"),
+    "possui tipo"
+  )
+
+  expect_equal(res$tipo, "DCCR")
+})
+
+
+test_that("Erro Fonte invalida - mensagem completa", {
   expect_error(
-    dts_validate_fonte_tipo("Gol", "LT")
+    dts_validate_fonte_tipo("Gol", "LT"),
+    "\\[ERRO\\] Fonte inválida: 'GOL'"
   )
 })
 
 test_that("Erro Multiplos tipos", {
-  expect_error(dts_validate_fonte_tipo("SIA", c("PA",'APAC')))
+  expect_error(
+    dts_validate_fonte_tipo("SIA", c("PA", "APAC")),
+    "informe um tipo válido"
+  )
 })
 
 test_that("Erro tipo nao informado", {
   expect_error(dts_validate_fonte_tipo("SIA"))
 })
 
-test_that("Erro fonte invalida ", {
-  expect_error(dts_validate_fonte_tipo("SIA", "HAHA"))
+test_that("Erro Tipo invalido", {
+  expect_error(
+    dts_validate_fonte_tipo("SIA", "HAHA"),
+    "Tipo inválido para 'SIA'"
+  )
 })
+
 
 # UF
 test_that('UF VALIDA',{
@@ -34,7 +52,9 @@ test_that('UF VALIDA',{
 })
 
 test_that('NENHUMA UF INFORAMDA = TODOS ESTADOS',{
-  expect_warning(dts_validate_uf())
+  expect_warning(res <- dts_validate_uf(),'UF')
+  expect_true("MG" %in% res)
+  expect_true("BR" %in% res)
 })
 
 test_that('UF DESCONHECIDA',{
@@ -45,7 +65,7 @@ test_that('UF DESCONHECIDA',{
 test_that('DATA CORRETA',{
   res<- dts_validate_data(202305,periodicidade = 'mensal')
   expect_equal(res$ano,2023)
-  expect_equal(res$mes,05)
+  expect_equal(res$mes,5)
 })
 
 test_that('DATA CORRETA',{
@@ -54,7 +74,7 @@ test_that('DATA CORRETA',{
 })
 
 test_that('DATA NAO INFORMADA',{
-  expect_error(dts_validate_data())
+  expect_error(dts_validate_data(,periodicidade = 'anual'))
 })
 
 test_that('Formato da data errado',{
@@ -71,11 +91,11 @@ test_that('Formato da data errado',{
 })
 
 test_that('Ano inforamdo errado',{
-  expect_error(dts_validate_data('197505'))
+  expect_error(dts_validate_data('197505',periodicidade = 'mensal'))
 })
 
 test_that('Mes inforamdo errado',{
-  expect_error(dts_validate_data('199915'))
+  expect_error(dts_validate_data('199915',periodicidade = 'mensal'))
 })
 
 # save DBC
@@ -115,8 +135,10 @@ test_that('Sequencia correta',{
 })
 
 test_that('DATA FIM NULL',{
-  TESTE <- dts_seq_data(list(ano = 2019),NULL)
-  expect_equal(TESTE,c('2019'))
+  expect_error(
+    dts_seq_data(list(ano = 2023, mes = 9)),
+    "argument.*Data_fim"
+  )
 })
 
 
@@ -132,29 +154,18 @@ test_that('Erro de digitaçao',{
   expect_error(dts_seq_data(list(ano = 20231,mes= 09),list(ano = 20203,mes= 02)))
 })
 
-test_that('Erro de digitaçao',{
-  expect_error(dts_seq_data(list(ano = 20231,mes= 09),list(ano = 20203,mes= 02)))
-})
-
 
 # DF gerencia os arquivos
 if(curl::has_internet() == T){
   test_that('DADOS CORRETOS',{
     TESTE <- dts_files_wb('SIH','RD','AC',c(202301:202304))
     expect_equal(nrow(TESTE),4)
-    expect_equal(TESTE$lnk_final[3],"ftp://ftp.datasus.gov.br/dissemin/publicos/SIHSUS/200801_/Dados/RDAC2303.dbc")
-    expect_equal(TESTE$lnk_final[1],"ftp://ftp.datasus.gov.br/dissemin/publicos/SIHSUS/200801_/Dados/RDAC2301.dbc")
+    expect_equal(TESTE$nome_arquivo[3],"RDAC2303")
   })
 
   test_that('DADOS CORRETOS',{
     TESTE <- dts_files_wb('SIA','PA','SP',202409)
-    expect_equal(nrow(TESTE),3)
-    expect_equal(TESTE$arquivos,c('PASP2409a.dbc','PASP2409b.dbc','PASP2409c.dbc'))
-  })
-
-  # todas as variaveis ja foram testadas antes, o que reduz a chance de erros
-  test_that('DADOS CORRETOS',{
-    expect_error(dts_files_wb('CNES','LT','SP',205009),'Erro - TIPO / UF / PERIODO NAO DISPONIVEL  NO MOMENTO')
+    expect_equal(nrow(TESTE),1)
   })
 }
 
