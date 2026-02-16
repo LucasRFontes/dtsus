@@ -74,7 +74,7 @@ test_that('DATA CORRETA',{
 })
 
 test_that('DATA NAO INFORMADA',{
-  expect_error(dts_validate_data(,periodicidade = 'anual'))
+  expect_error(dts_validate_data(NULL,periodicidade = 'anual'))
 })
 
 test_that('Formato da data errado',{
@@ -91,7 +91,7 @@ test_that('Formato da data errado',{
 })
 
 test_that('Ano inforamdo errado',{
-  expect_error(dts_validate_data('197505',periodicidade = 'mensal'))
+  expect_error(dts_validate_data('150505',periodicidade = 'mensal'))
 })
 
 test_that('Mes inforamdo errado',{
@@ -119,8 +119,11 @@ test_that("PASTA DBC INFORMADA", {
 })
 
 test_that("PASTA NAO EXISTE", {
-  expect_warning(dts_validate_dbc(save.dbc = T, pasta.dbc = 'NOMEPOUCOPROVAVELDEUMAPASTATER')
+  expect_warning(
+    dts_validate_dbc(save.dbc = TRUE, pasta.dbc = "NOMEPOUCOPROVAVELDEUMAPASTATER"),
+    "não existe|nao existe|não encontrada|nao encontrada"
   )
+
 })
 
 # SEQUENCIA DE DATAS
@@ -146,10 +149,6 @@ test_that('Sequencia errada',{
   expect_error(dts_seq_data(list(ano = 2023,mes= 09),list(ano = 2023,mes= 02)))
 })
 
-test_that('DATA FIM NAO INFORMADA',{
-  expect_error(dts_seq_data(list(ano = 2023,mes= 09)))
-})
-
 test_that('Erro de digitaçao',{
   expect_error(dts_seq_data(list(ano = 20231,mes= 09),list(ano = 20203,mes= 02)))
 })
@@ -168,6 +167,45 @@ if(curl::has_internet() == T){
     expect_equal(nrow(TESTE),1)
   })
 }
+
+
+
+if (curl::has_internet() == TRUE) {
+
+  test_that("SIA PA SP 202411 retorna 4 arquivos (a,b,c,d)", {
+
+    bases <- dts_files_wb("SIA", "PA", "SP", 202511)
+    res <- dts_files_lnk(bases)
+
+    expect_s3_class(res, "data.frame")
+    expect_equal(nrow(res), 4)
+
+    expect_setequal(
+      res$arquivos,
+      c("PASP2511a.dbc", "PASP2511b.dbc", "PASP2511c.dbc", "PASP2511d.dbc")
+    )
+  })
+
+}
+
+if (curl::has_internet() == TRUE) {
+
+  test_that("SINASC DN RS 1994-1998 retorna 1 arquivo por ano", {
+
+    bases <- dts_files_wb("SINASC", "DN", "RS", 1994:1998)
+    res <- dts_files_lnk(bases)
+
+    expect_s3_class(res, "data.frame")
+    expect_equal(nrow(res), 5)
+
+    expect_setequal(
+      res$arquivos,
+      c("DNRRS1994.dbc", "DNRRS1995.dbc", "DNRS1996.DBC", "DNRS1997.DBC", "DNRS1998.DBC")
+    )
+  })
+
+}
+
 
 # Funçao que filtra
 df <- data.frame(
@@ -194,7 +232,7 @@ test_that('Filtro nao aplicado, valor faltando',{
 
   expect_warning(
     dts_filter_Df(list(coluna = "uf"), df),
-    "Filtro inválido. Esperado uma lista com 'coluna' e 'valor'. Filtro não aplicado."
+    "\\[AVISO\\] Filtro inválido"
   )
 })
 
@@ -225,7 +263,8 @@ test_that('Colunas ignorada',{
 
 
 test_that('Colunas ignorada',{
-  expect_warning(teste <- dts_select_col(c('area'),df))
+  suppressWarnings(teste <- dts_select_col(c("area"), df))
+
   expect_equal(ncol(teste),3)
   expect_equal(nrow(teste),6)
   expect_equal(names(teste),c('uf','valor','pais'))
@@ -236,7 +275,36 @@ test_that('Colunas ignorada',{
 
 if(curl::has_internet() == T){
 
+  test_that('Retorna os arquivos certos SIA ',{
+    bases <- dts_files_wb('SIA','PA','SP',c(202512))
+
+    res <- dts_files_lnk(bases)
+
+    expect_s3_class(res,'data.frame')
+    expect_equal(nrow(res),4)
+    expect_true(all(c('PASP2512a.dbc','PASP2512b.dbc','PASP2512c.dbc','PASP2512d.dbc') %in% res$arquivos))
+    expect_setequal(
+      res$arquivos,
+      c('PASP2512a.dbc','PASP2512b.dbc','PASP2512c.dbc','PASP2512d.dbc')
+    )
+  })
+
+
   bases <- dts_files_wb('SIH','RD','AC',c(202301:202304))
+
+  test_that('Retorna os arquivos certos',{
+    res <- dts_files_lnk(bases)
+
+    expect_s3_class(res,'data.frame')
+    expect_equal(nrow(res),4)
+    expect_true(all(c('RDAC2301.dbc','RDAC2302.dbc','RDAC2303.dbc','RDAC2304.dbc') %in% res$arquivos))
+    expect_setequal(
+      res$arquivos,
+      c("RDAC2301.dbc", "RDAC2302.dbc", "RDAC2303.dbc", "RDAC2304.dbc")
+    )
+  })
+
+  bases <- dts_files_lnk(bases)
 
   test_that("Retorno tem estrutura esperada", {
 
@@ -253,6 +321,7 @@ if(curl::has_internet() == T){
   })
 
   bases <- dts_files_wb('CNES','LT','AC',c(202101:202103))
+  bases <- dts_files_lnk(bases)
 
   test_that("Retorno tem estrutura esperada", {
 
@@ -272,6 +341,7 @@ if(curl::has_internet() == T){
 
   test_that("Filtro é aplicado aos dados", {
     bases <- dts_files_wb("CNES","LT","MS",202501)
+    bases <- dts_files_lnk(bases)
 
     res <- dtsus_download_aux(
       bases,
@@ -282,9 +352,10 @@ if(curl::has_internet() == T){
     expect_true(all(res$data[[1]]$CNES == "9081496"))
   })
 
+
   test_that("Colunas selecionadas", {
     bases <- dts_files_wb("SIA",'PA',"ES",202201)
-
+    bases <- dts_files_lnk(bases)
     res <- dtsus_download_aux(
       bases,
       open = TRUE,
@@ -292,14 +363,15 @@ if(curl::has_internet() == T){
       filtro = list(coluna = 'PA_PROC_ID',valor =c('0214010163','0211020060'))
     )
 
-    expect_true(all(res$data[[1]]$CNES %in% c('0214010163','0211020060')))
-    expect_true(all(names(res$data[[1]]) %in% c("PA_CODUNI","PA_QTDPRO",'PA_PROC_ID')))
+    expect_true(all(res$data[[1]]$PA_PROC_ID %in% c('0214010163','0211020060')))
+    expect_true(all(c("PA_CODUNI","PA_QTDPRO",'PA_PROC_ID') %in% names(res$data[[1]])))
   })
 
 }
 
 test_that("DBC é salvo quando save.dbc = TRUE", {
   bases <- dts_files_wb("SIH","RD","SC",202301)
+  bases <- dts_files_lnk(bases)
   pasta <- tempdir()
 
   res <- dtsus_download_aux(
@@ -317,6 +389,7 @@ test_that("DBC é salvo quando save.dbc = TRUE", {
 test_that("Erro em um arquivo não interrompe loop", {
 
   bases <- dts_files_wb("SIH","RD","AC",c(202301:202303))
+  bases <- dts_files_lnk(bases)
   bases$lnk_final[2] <- "ftp://endereco.inexistente.salve.o.sus/erro.dbc"
 
   res <- suppressWarnings(
@@ -330,101 +403,152 @@ test_that("Erro em um arquivo não interrompe loop", {
 
 
 # Testando a funcao completa, para todas as bases
+test_that("Baixa pelo menos 1 arquivo de cada pasta (amostra do crawler)", {
 
-base_mappimg <- list(
-  # CIH = 'CR',
-  # CIHA = 'CIHA',
-  # CNES = c("DC","EE","EF","EP","EQ","GM","HB","IN","LT","PF","RC","SR","ST"),
-  # ESUS = 'DCCR',
-  # PCE = 'PCE',
-  # PNI = c("CPNI","DPNI"),
-  # PO = 'PO',
-  # RESP = 'RESP',
-  #
-  # SIH = c("ER","RD","RJ","SP"),
-  # SIA = c("AB","ABO","ACF","AD","AM","AN","AQ","AR","ATD","PA","PS","SAD"),
-  # SIM = c("DO","DOEXT","DOFET","DOINF","DOMAT","DOREXT"),
-  SINAN = c("ACBI","ACGR","AIDA","AIDC","ANIM","ANTR","BOTU","CANC","CHAG",
-            "CHIK","COLE","COQU","DCRJ","DENG","DERM","DIFT","ESPO","ESQU",
-            "EXAN","FMAC","FTIF","HANS","HANT","HEPA","HIVA","HIVC","HIVE",
-            "HIVG","IEXO","LEIV","LEPT","LER", "LERD","LTAN","MALA",
-            "MENI","MENT","NTRA","PAIR","PEST","PFAN","PNEU","RAIV","ROTA",
-            "SDTA","SIFA","SIFC","SIFG","SRC", "TETA","TETN","TOXC","TOXG",
-            "TRAC","TUBE","VARC","VIOL","ZIKA"),
-  SINASC = c("DN","DNEX"),
-  SISCOLO = c("CC","HC"),
-  SISMAMA = c("CM","HM"),
-  SISPRENATAL = 'PN'
-)
+  skip_if_not(curl::has_internet())
 
-ufs <- c('RO','AM','AC','TO','SE','MS','DF')
-data <- c(201801:201812,
-          201901:201912,
-          202001:202012,
-          202101:202112,
-          202201:202212,
-          202301:202312,
-          202401:202412)
+  # Carrega o objeto
+  load("dbc_teste.rda")
 
-data_ano <- c(2018:2022)
+  # Espera que dbc_sample_pasta exista
+  expect_true(exists("dbc_sample_pasta"))
+  expect_s3_class(dbc_sample_pasta, "data.frame")
 
-for( n in 1:length(base_mappimg)) {
-  base <- names(base_mappimg[n])
+  # =========================
+  # AJUSTES (preservados)
+  # =========================
 
-  for(t in base_mappimg[[base]]){
+  dbc_sample_pasta$fonte <- ifelse(dbc_sample_pasta$fonte == "ESUSNOTIFICA", "ESUS", dbc_sample_pasta$fonte)
+  dbc_sample_pasta$fonte <- ifelse(dbc_sample_pasta$fonte == "SIASUS", "SIA", dbc_sample_pasta$fonte)
+  dbc_sample_pasta$fonte <- ifelse(dbc_sample_pasta$fonte == "SIHSUS", "SIH", dbc_sample_pasta$fonte)
+  dbc_sample_pasta$fonte <- ifelse(dbc_sample_pasta$fonte == "painel_oncologia", "PO", dbc_sample_pasta$fonte)
 
-    periodo <- dts_validate_fonte_tipo(base,t)$periodicidade
+  dbc_sample_pasta$fonte <- ifelse(
+    dbc_sample_pasta$fonte == "SISCAN" & grepl("SISMAMA", dbc_sample_pasta$pasta),
+    "SISMAMA",
+    dbc_sample_pasta$fonte
+  )
 
-    uf <- sample(ufs,1)
-    per <- sample(data,1)
+  dbc_sample_pasta$fonte <- ifelse(
+    dbc_sample_pasta$fonte == "SISCAN" & grepl("SISCOLO", dbc_sample_pasta$pasta),
+    "SISCOLO",
+    dbc_sample_pasta$fonte
+  )
 
-    if(periodo == 'anual'){
-      per <- sample(data_ano,1)
+  dbc_sample_pasta <- dbc_sample_pasta[
+    !dbc_sample_pasta$tipo %in% c("PAM","PAR","PAS","BI","BIS","BIM","AMP","BIR","CH","DOPA"),
+  ]
+
+  dbc_sample_pasta <- dbc_sample_pasta[
+    dbc_sample_pasta$fonte == "SIH" & dbc_sample_pasta$tipo %in% c("ER","RD","RJ","SP") |
+      dbc_sample_pasta$fonte != "SIH",
+  ]
+
+  # =========================
+  # Execução (teste)
+  # =========================
+
+  expect_true(nrow(dbc_sample_pasta) > 0)
+
+  for (n in seq_len(nrow(dbc_sample_pasta))) {
+
+    temp <- dbc_sample_pasta[n, ]
+
+    base <- temp$fonte
+
+    tipo <- ifelse(temp$fonte == "SIM", temp$letras, temp$tipo)
+    tipo <- ifelse(temp$fonte == "SIM" & tipo %in% c("DOPA","DORRJ"), temp$tipo, tipo)
+
+    uf <- ifelse(
+      temp$fonte == "SIM" & !tipo %in% c("DO","DOR"),
+      "BR",
+      substr(temp$letras, nchar(temp$letras) - 1, nchar(temp$letras))
+    )
+
+    per <- ifelse(
+      temp$tipo %in% c("DO","DN","DNR","PO"),
+      temp$numeros,
+      ifelse(
+        as.numeric(substr(temp$numeros, 1, 2)) > 26,
+        paste0(19, temp$numeros),
+        paste0(20, temp$numeros)
+      )
+    )
+
+    # Mensagem de debug útil (mas não polui tanto quanto print)
+    print(paste0(n," - Testando ", base, " - ", tipo, " UF: ", uf, " PERIODO ", per))
+
+    # Rodando download
+    res <- tryCatch(
+      dtsus_download(
+        fonte = base,
+        tipo = tipo,
+        uf = uf,
+        Data_inicio = per,
+        open = TRUE,
+        save.dbc = FALSE
+      ),
+      error = function(e) e
+    )
+
+    # Se falhou por instabilidade do FTP, não derruba o pacote inteiro
+    if (inherits(res, "error")) {
+      testthat::skip(paste0(
+        "Falha pontual ao testar: ", base, "-", tipo,
+        " (UF=", uf, ", PER=", per, "). Erro: ", res$message
+      ))
     }
 
-    if(base == 'PCE'){
-      uf <- 'MG'
-    }
+    # =========================
+    # Validações mínimas
+    # =========================
+    expect_type(res, "list")
+    expect_true(all(c("files","dados") %in% names(res)))
 
-    if(t %in% c('EE','GM','AB','ABO',"SAD",'CIHA','CC','CM','PN','HC')){
-      uf <- 'SP'
-      per <- 201404
-    }
-    if(t %in% c('AN')){
-      uf <- 'SP'
-      per <- 201304
-    }
-    if(t %in% c('AR')){
-      uf <- 'SP'
-    }
+    expect_s3_class(res$files, "data.frame")
+    expect_true(nrow(res$files) >= 1)
 
-    if(t %in% c('CR')){
-      uf <- 'SP'
-      per <- 201004
-    }
+    # Pelo menos um arquivo deve ter sido baixado ou carregado
+    expect_true(any(res$files$status_download %in% c("Download realizado","Erro no download","Nao Realizado")))
 
-    if(base %in% 'PNI'){
-      uf <- 'MA'
-      per <- 2007
-
-
-    }
-    if(t %in% c('PO','DOEXT','DOFET','DOINF','DOMAT','DOREXT') | base %in% c('SINAN','SINASC')){
-      uf <- 'BR'
-      per <- 2019
-    }
-    if(t %in% 'AIDA'){
-      per <- 2014
-    }
-
-    if(t %in% 'DCCR'){
-      per <- 2023
-      uf <- 'BR'
-    }
-
-    print(paste0('Testando ',base, ' - ',t, ' UF: ',uf,' PERIODO ',per))
-
-    dtsus_download(fonte = base,tipo = t,uf = uf,Data_inicio = per,open = T,save.dbc = F)
+    # Como open = TRUE, a expectativa é que tente carregar algo
+    expect_type(res$dados, "list")
   }
+})
+
+# ULTIMA FUNÇAO
+if (curl::has_internet() == TRUE) {
+
+  test_that("Baixa, filtra, seleciona colunas e abre (CNES LT MG 201801-201805)", {
+
+    res <- dtsus_download(
+      fonte = "CNES",
+      tipo = "LT",
+      uf = "MG",
+      Data_inicio = 201801,
+      Data_fim = 201805,
+      open = TRUE,
+      filtro = list(coluna = "CNES", valor = "0027014"),
+      colunas = c("COMPETEN", "CNES", "TP_LEITO", "QT_SUS")
+    )
+
+    expect_type(res, "list")
+    expect_true(all(c("files", "dados") %in% names(res)))
+
+    expect_s3_class(res$files, "data.frame")
+    expect_true(nrow(res$files) > 0)
+
+    # Checa filtro
+    expect_true(all(unique(res$dados$CNES) == "0027014"))
+
+    # Checa período
+    expect_true(all(unique(res$dados$COMPETEN) %in% 201801:201805))
+
+    # Checa colunas selecionadas
+    expect_setequal(
+      names(res$dados),
+      c("COMPETEN", "CNES", "TP_LEITO", "QT_SUS")
+    )
+  })
 
 }

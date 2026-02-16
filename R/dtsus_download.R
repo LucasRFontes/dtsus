@@ -29,7 +29,7 @@ dts_validate_fonte_tipo <- function(fonte = NA, tipo = NA){
               "MENI","MENT","NTRA","PAIR","PEST","PFAN","PNEU","RAIV","ROTA",
               "SDTA","SIFA","SIFC","SIFG","SRC", "TETA","TETN","TOXC","TOXG",
               "TRAC","TUBE","VARC","VIOL","ZIKA"),
-    SINASC = c("DN","DNEX"),
+    SINASC = c("DN","DNEX",'DNR'),
     SISCOLO = c("CC","HC"),
     SISMAMA = c("CM","HM","MM"),
     SISPRENATAL = 'PN'
@@ -137,9 +137,9 @@ dts_validate_data <- function(x,periodicidade) {
     mes <- substr(x, 5, 6)
 
     # Validar ano
-    if (as.integer(ano) <= 1988 |
+    if (as.integer(ano) <= 1965 |
         as.integer(ano) > as.integer(format(Sys.Date(), "%Y"))) {
-      stop("[ERRO] O ano não pode ser menor que 1988 e não pode ser maior que a data atual.",call. = FALSE)
+      stop("[ERRO] O ano não pode ser menor que 1965 e não pode ser maior que a data atual.",call. = FALSE)
     }
 
 
@@ -164,9 +164,9 @@ dts_validate_data <- function(x,periodicidade) {
     ano <- x
 
     # Validar ano
-    if (as.integer(ano) <= 1988 |
+    if (as.integer(ano) <= 1965 |
         as.integer(ano) > as.integer(format(Sys.Date(), "%Y"))) {
-      stop("[ERRO] O ano não pode ser menor que 1988 e não pode ser maior que a data atual.",call. = FALSE)
+      stop("[ERRO] O ano não pode ser menor que 1965 e não pode ser maior que a data atual.",call. = FALSE)
     }
 
     # Retornar como lista ou tibble
@@ -247,6 +247,9 @@ dts_files_wb <- function(fonte,tipo,uf,sequencia_datas){
   # Preparando lista de arquivos para download
   files <- data.frame(fonte,tipo,uf,sequencia_datas,stringsAsFactors = F)
 
+  # Corrigindo o sinaSC se necessario
+  files$tipo <- ifelse(files$fonte =='SINASC' & files$tipo == 'DN' & files$sequencia_datas <= 1995,'DNR',files$tipo)
+
   # Cria o nome do arquivo
   files$nome_arquivo <- paste0(files$tipo,
                                ifelse(files$uf !='BR'|
@@ -310,13 +313,13 @@ dts_files_lnk <- function(files){
 
     if(fonte == 'SIM'){
       if(ano <1996){
-        if(tipo == 'DO'){
-          return('CID9/DORE/')
+        if(tipo %in% c('DO','DOR')){
+          return('CID9/DORES/')
         }else{
           return('CID9/DOFET/')
         }
       }else{
-        if(tipo == 'DO'){
+        if(tipo %in% c('DO','DOR')){
           return('CID10/DORES/')
         }else{
           return('CID10/DOFET/')
@@ -340,8 +343,6 @@ dts_files_lnk <- function(files){
 
   ### Verifica quais arquivos estao disponiveris para download ###
   lista_arquivos <- list() # lista dos arquivos a ser baixados
-  ncaract <- nchar(files$nome_arquivo[1]) # numeros de caracteres q o nome do arquivo tem (fonte varia entre 2 e 3 caract)
-
 
   for(l in unique(files$lnk_final)){
     arquivos <- tryCatch({
@@ -357,38 +358,55 @@ dts_files_lnk <- function(files){
 
     # Verificando se existe a pasta FINAIS e PRELIM
     if('FINAIS\r' %in% arquivos | 'PRELIM\r' %in% arquivos){
-      FINAIS <- data.frame(arquivos = NA,nome_arquivo = NA, obs = NA,stringsAsFactors = F)
-      PRELIM <- data.frame(arquivos = NA,nome_arquivo = NA, obs = NA,stringsAsFactors = F)
+      FINAIS <- data.frame(arquivos = NA, obs = NA,stringsAsFactors = F)
+      PRELIM <- data.frame(arquivos = NA, obs = NA,stringsAsFactors = F)
 
 
       if('FINAIS\r' %in% arquivos){
 
-        FINAIS <- unlist(strsplit(RCurl::getURL(url = paste0(l,"FINAIS/"), ftp.use.epsv = TRUE, dirlistonly = TRUE), "\n"))
-        FINAIS <- data.frame(arquivos = gsub("\r","",FINAIS),
-                             nome_arquivo = substr(FINAIS,1,ncaract),
-                             obs = 'FINAIS',
-                             stringsAsFactors = F)
+        FINAIS_tp <- unlist(strsplit(RCurl::getURL(url = paste0(l,"FINAIS/"), ftp.use.epsv = TRUE, dirlistonly = TRUE), "\n"))
 
+        if(length(FINAIS_tp) >0){
+          FINAIS <- data.frame(arquivos = gsub("\r","",FINAIS_tp),
+                               obs = 'FINAIS',
+                               stringsAsFactors = F)
+
+        }
       }
       if('PRELIM\r' %in% arquivos){
-        PRELIM <- unlist(strsplit(RCurl::getURL(url = paste0(l,"PRELIM/"), ftp.use.epsv = TRUE, dirlistonly = TRUE), "\n"))
-        PRELIM <- data.frame(arquivos = gsub("\r","",PRELIM),
-                             nome_arquivo = substr(PRELIM,1,ncaract),
-                             obs = 'PRELIM',
-                             stringsAsFactors = F)
+        PRELIM_tp <- unlist(strsplit(RCurl::getURL(url = paste0(l,"PRELIM/"), ftp.use.epsv = TRUE, dirlistonly = TRUE), "\n"))
+
+        if(length(PRELIM_tp)>0){
+          PRELIM <- data.frame(arquivos = gsub("\r","",PRELIM_tp),
+                               obs = 'PRELIM',
+                               stringsAsFactors = F)
+        }
+
       }
       arquivos <- rbind(FINAIS,PRELIM)
-      arquivos <- arquivos[!is.na(arquivos$nome_arquivo), ]  # Remove NAs
 
     }else{
       arquivos <- data.frame(arquivos = gsub("\r","",arquivos),
-                             nome_arquivo = substr(arquivos,1,ncaract),
                              obs = NA,stringsAsFactors = F) # transforma em data frame
 
     }
 
 
     df_temp <- files[files$lnk_final == l,] # dataframe temporario correspondente ao arquivo a ser baixado
+
+    arquivos$nome_arquivo <- basename(gsub("\r", "", arquivos$arquivos))
+    arquivos <- arquivos[!is.na(arquivos$arquivos),]
+
+    # acha qual prefixo esperado casa com o começo do arquivo
+    arquivos$nome_arquivo <- vapply(
+      arquivos$nome_arquivo,
+      function(arq) {
+        hit <- df_temp$nome_arquivo[startsWith(arq, df_temp$nome_arquivo)]
+        if (length(hit) == 0) return(NA_character_)
+        hit[which.max(nchar(hit))]  # pega o mais específico
+      },
+      character(1)
+    )
 
     arquivos <- arquivos[arquivos$nome_arquivo %in% df_temp$nome_arquivo,]
 
