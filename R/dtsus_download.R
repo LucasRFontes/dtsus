@@ -4,7 +4,7 @@
 dts_validate_fonte_tipo <- function(fonte = NA, tipo = NA){
 
   if (length(fonte) != 1 || is.na(fonte)) {
-    stop("[ERRO] Informe uma fonte válida do DATASUS (ex: CNES, SIH, SIA, SIM).", call. = FALSE)
+    stop("[ERRO] Informe uma fonte valida do DATASUS (ex: CNES, SIH, SIA, SIM).", call. = FALSE)
   }
 
   fonte <- toupper(trimws(fonte))
@@ -37,18 +37,18 @@ dts_validate_fonte_tipo <- function(fonte = NA, tipo = NA){
 
   if (!fonte %in% names(base_mappimg)) {
     stop(sprintf(
-      "[ERRO] Fonte inválida: '%s'. Fontes disponíveis: %s",
+      "[ERRO] Fonte invalida: '%s'. Fontes disponiveis: %s",
       fonte, paste(names(base_mappimg), collapse = ", ")
     ), call. = FALSE)
   }
 
   tp <- base_mappimg[[fonte]]
 
-  # Se so existir um tipo possível
+  # Se so existir um tipo possivel
   if (length(tp) == 1) {
     if (!is.na(tipo) && toupper(trimws(tipo)) != tp) {
       warning(sprintf(
-        "[AVISO] Fonte '%s' só possui tipo '%s'. Ignorando tipo informado: '%s'",
+        "[AVISO] Fonte '%s' so possui tipo '%s'. Ignorando tipo informado: '%s'",
         fonte, tp, tipo
       ), call. = FALSE)
     }
@@ -59,7 +59,7 @@ dts_validate_fonte_tipo <- function(fonte = NA, tipo = NA){
 
     if(all(is.na(tipo)) || length(tipo) != 1) {
       stop(sprintf(
-        "[ERRO] Para a fonte '%s', informe um tipo válido. Tipos disponíveis: %s",
+        "[ERRO] Para a fonte '%s', informe um tipo valido. Tipos disponiveis: %s",
         fonte,
         paste(tp, collapse = ", ")
       ), call. = FALSE)
@@ -68,7 +68,7 @@ dts_validate_fonte_tipo <- function(fonte = NA, tipo = NA){
 
     if (!tipo %in% tp) {
       stop(sprintf(
-        "[ERRO] Tipo inválido para '%s': '%s'. Tipos disponíveis: %s",
+        "[ERRO] Tipo invalido para '%s': '%s'. Tipos disponiveis: %s",
         fonte, tipo, paste(tp, collapse = ", ")
       ), call. = FALSE)
     }
@@ -99,7 +99,7 @@ dts_validate_uf <- function(uf = NA){
   )
 
   if(all(is.na(uf))){
-    warning("[AVISO] UF não informada. Serão utilizadas todas as UFs (incluindo BR).", call. = FALSE)
+    warning("[AVISO] UF nao informada. Serao utilizadas todas as UFs (incluindo BR).", call. = FALSE)
 
     return(ufs)}
 
@@ -111,7 +111,7 @@ dts_validate_uf <- function(uf = NA){
   if(length(erro)>0){
     stop(
       sprintf(
-        "[ERRO] UF inválida(s): %s. Use siglas válidas (ex: MG, SP, RJ).",
+        "[ERRO] UF invalida(s): %s. Use siglas validas (ex: MG, SP, RJ).",
         paste(erro, collapse = ", ")
       ),
       call. = FALSE
@@ -129,7 +129,7 @@ dts_validate_data <- function(x,periodicidade) {
   # Verificar se tem exatamente 6 digitos
   if(periodicidade =='mensal'){
     if (!grepl("^[0-9]{6}$", x)) {
-      stop("[ERRO] Data inválida. Para bases mensais use AAAAMM (ex: 202412).", call. = FALSE)
+      stop("[ERRO] Data invalida. Para bases mensais use AAAAMM (ex: 202412).", call. = FALSE)
     }
 
     # Separar ano e mes
@@ -139,13 +139,13 @@ dts_validate_data <- function(x,periodicidade) {
     # Validar ano
     if (as.integer(ano) <= 1965 |
         as.integer(ano) > as.integer(format(Sys.Date(), "%Y"))) {
-      stop("[ERRO] O ano não pode ser menor que 1965 e não pode ser maior que a data atual.",call. = FALSE)
+      stop("[ERRO] O ano nao pode ser menor que 1965 e nao pode ser maior que a data atual.",call. = FALSE)
     }
 
 
     # Validar mes
     if (!(mes %in% sprintf("%02d", 1:12))) {
-      stop("[ERRO] Data inválida. Para bases mensais use AAAAMM (ex: 202412).", call. = FALSE)
+      stop("[ERRO] Data invalida. Para bases mensais use AAAAMM (ex: 202412).", call. = FALSE)
     }
 
     # Retornar como lista ou tibble
@@ -157,7 +157,7 @@ dts_validate_data <- function(x,periodicidade) {
 
   if(periodicidade =='anual'){
     if (!grepl("^[0-9]{4}$", x)) {
-      stop("[ERRO] Data inválida. Para bases anuais use AAAA (ex: 2024).", call. = FALSE)
+      stop("[ERRO] Data invalida. Para bases anuais use AAAA (ex: 2024).", call. = FALSE)
     }
 
     # Separar ano e mes
@@ -166,7 +166,7 @@ dts_validate_data <- function(x,periodicidade) {
     # Validar ano
     if (as.integer(ano) <= 1965 |
         as.integer(ano) > as.integer(format(Sys.Date(), "%Y"))) {
-      stop("[ERRO] O ano não pode ser menor que 1965 e não pode ser maior que a data atual.",call. = FALSE)
+      stop("[ERRO] O ano nao pode ser menor que 1965 e nao pode ser maior que a data atual.",call. = FALSE)
     }
 
     # Retornar como lista ou tibble
@@ -184,7 +184,7 @@ dts_validate_dbc <- function(save.dbc, pasta.dbc) {
   if (!isTRUE(save.dbc)){return(NULL)}
   if (is.null(pasta.dbc) || !dir.exists(pasta.dbc)) {
     warning(sprintf(
-      "[AVISO] Pasta de saída não encontrada. Salvando DBC em: %s",
+      "[AVISO] Pasta de saida nao encontrada. Salvando DBC em: %s",
       normalizePath(getwd(), winslash = "/", mustWork = FALSE)
     ), call. = FALSE)
 
@@ -205,7 +205,7 @@ dts_seq_data <- function(Data_inicio, Data_fim){
     inicio <- as.Date(sprintf("%04d-01-01", Data_inicio$ano))
   }
 
-  # se não tiver fim, retorna só inicio
+  # se nao tiver fim, retorna so inicio
   if (is.null(Data_fim) || is.null(Data_fim$ano) || is.na(Data_fim$ano)) {
     seq_datas <- inicio
   } else {
@@ -219,7 +219,7 @@ dts_seq_data <- function(Data_inicio, Data_fim){
 
     # valida ordem
     if(inicio > fim){
-      stop("[ERRO] Data_inicio não pode ser maior que Data_fim.", call. = FALSE)
+      stop("[ERRO] Data_inicio nao pode ser maior que Data_fim.", call. = FALSE)
     }
 
     # sequencia
@@ -355,7 +355,7 @@ dts_files_lnk <- function(files){
       unlist(strsplit(RCurl::getURL(url = l, ftp.use.epsv = TRUE, dirlistonly = TRUE), "\n")) # gera lista de arquivos disponiveis
     }, error=function(e){
       stop(sprintf(
-        "[ERRO] Não foi possível acessar o FTP do DATASUS: %s",
+        "[ERRO] Nao foi possivel acessar o FTP do DATASUS: %s",
         l
       ), call. = FALSE)
 
@@ -403,13 +403,13 @@ dts_files_lnk <- function(files){
     arquivos$nome_arquivo <- basename(gsub("\r", "", arquivos$arquivos))
     arquivos <- arquivos[!is.na(arquivos$arquivos),]
 
-    # acha qual prefixo esperado casa com o começo do arquivo
+    # acha qual prefixo esperado casa com o comeco do arquivo
     arquivos$nome_arquivo <- vapply(
       arquivos$nome_arquivo,
       function(arq) {
         hit <- df_temp$nome_arquivo[startsWith(arq, df_temp$nome_arquivo)]
         if (length(hit) == 0) return(NA_character_)
-        hit[which.max(nchar(hit))]  # pega o mais específico
+        hit[which.max(nchar(hit))]  # pega o mais especifico
       },
       character(1)
     )
@@ -423,12 +423,12 @@ dts_files_lnk <- function(files){
   if (length(lista_arquivos) > 0) {
     lista_arquivos <- do.call(rbind, lista_arquivos)
   } else {
-    lista_arquivos <- data.frame()  # data.frame vazio explícito
+    lista_arquivos <- data.frame()  # data.frame vazio explicito
   }
 
   # Levando os arquivos a serem baixados para o data frame final
   if(nrow(lista_arquivos) == 0){
-    stop("[ERRO] Nenhum arquivo encontrado para os parâmetros informados (fonte/tipo/UF/período).", call. = FALSE)
+    stop("[ERRO] Nenhum arquivo encontrado para os parametros informados (fonte/tipo/UF/periodo).", call. = FALSE)
   }else{
     files <- merge(files,lista_arquivos,by ='nome_arquivo',all.x = T)
     files$arquivos[is.na(files$arquivos)] <- NA
@@ -460,9 +460,9 @@ dts_filter_Df <- function(filtro, df) {
   # Sem filtro = retorna sem warning
   if (is.null(filtro)) return(df)
 
-  # Estrutura mínima
+  # Estrutura minima
   if (!is.list(filtro) || !all(c("coluna", "valor") %in% names(filtro))) {
-    warning("[AVISO] Filtro inválido. Esperado uma lista com 'coluna' e 'valor'. Filtro não aplicado.", call. = FALSE)
+    warning("[AVISO] Filtro invalido. Esperado uma lista com 'coluna' e 'valor'. Filtro nao aplicado.", call. = FALSE)
     return(df)
   }
 
@@ -471,19 +471,19 @@ dts_filter_Df <- function(filtro, df) {
 
   # Coluna vazia
   if (is.null(filtro$coluna) || is.na(filtro$coluna) || filtro$coluna == "") {
-    warning("[AVISO] Filtro inválido. Campo 'coluna' não preenchido. Filtro não aplicado.", call. = FALSE)
+    warning("[AVISO] Filtro invalido. Campo 'coluna' nao preenchido. Filtro nao aplicado.", call. = FALSE)
     return(df)
   }
 
-  # Coluna não existe
+  # Coluna nao existe
   if (!filtro$coluna %in% names(df)) {
-    warning("[AVISO] Filtro inválido. Coluna selecionada não encontrada na base. Filtro não aplicado.", call. = FALSE)
+    warning("[AVISO] Filtro invalido. Coluna selecionada nao encontrada na base. Filtro nao aplicado.", call. = FALSE)
     return(df)
   }
 
   # Valor vazio
   if (is.null(filtro$valor) || length(filtro$valor) == 0) {
-    warning("[AVISO] Filtro inválido. Nenhum valor informado. Filtro não aplicado.", call. = FALSE)
+    warning("[AVISO] Filtro invalido. Nenhum valor informado. Filtro nao aplicado.", call. = FALSE)
     return(df)
   }
 
@@ -508,7 +508,7 @@ dts_select_col <- function(colunas, df) {
   faltantes <- setdiff(colunas, names(df))
   if (length(faltantes) > 0) {
     warning(sprintf(
-      "[AVISO] Coluna(s) não encontrada(s) e ignorada(s): %s",
+      "[AVISO] Coluna(s) nao encontrada(s) e ignorada(s): %s",
       paste(faltantes, collapse = ", ")
     ), call. = FALSE)
   }
@@ -516,7 +516,7 @@ dts_select_col <- function(colunas, df) {
   cols_ok <- intersect(colunas, names(df))
 
   if (length(cols_ok) == 0) {
-    warning("[AVISO] Nenhuma coluna válida encontrada.", call. = FALSE)
+    warning("[AVISO] Nenhuma coluna valida encontrada.", call. = FALSE)
     return(df)
   }
 
@@ -555,7 +555,7 @@ dtsus_download_aux <- function(
       temp <- tempfile(fileext = ".dbc")
 
       withCallingHandlers(
-        download.file(l, temp, mode = "wb", method = "libcurl"),
+        utils::download.file(l, temp, mode = "wb", method = "libcurl"),
         warning = function(w) stop(w)
       )
 
@@ -588,7 +588,7 @@ dtsus_download_aux <- function(
         message("[INFO] Arquivo DBC salvo em: ", pasta.dbc)
       }, error = function(e) {
         warning(sprintf(
-          "[AVISO] Não foi possível salvar o DBC em: %s",
+          "[AVISO] Nao foi possivel salvar o DBC em: %s",
           pasta.dbc
         ), call. = FALSE)
       })
@@ -618,7 +618,7 @@ dtsus_download_aux <- function(
       }, error = function(e) {
         files$status_load[i] <- "Erro na leitura"
         warning(sprintf(
-          "[AVISO] Arquivo baixado mas não carregado: %s",
+          "[AVISO] Arquivo baixado mas nao carregado: %s",
           l
         ), call. = FALSE)
       })
@@ -700,7 +700,7 @@ dtsus_download <- function(
     return_files = T
 ){
 
-  # Ajustando possiveis erros de digitação na fonte e tipo
+  # Ajustando possiveis erros de digitacao na fonte e tipo
 
 
   font_valid <- dts_validate_fonte_tipo(fonte,tipo) # Valida fonte e tipo
@@ -720,9 +720,9 @@ dtsus_download <- function(
 
   # Testa a conexao com a internet
   if(curl::has_internet() == T){
-    message("[INFO] Conexão com a internet: OK")
+    message("[INFO] Conexao com a internet: OK")
   }else{
-    stop("[ERRO] Sem conexão com a internet. Verifique sua rede e tente novamente.", call. = FALSE)
+    stop("[ERRO] Sem conexao com a internet. Verifique sua rede e tente novamente.", call. = FALSE)
   }
 
   # gera o df com os arquivos a serem baixados
