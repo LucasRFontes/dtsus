@@ -486,7 +486,8 @@ test_that("Baixa pelo menos 1 arquivo de cada pasta (amostra do crawler)", {
         uf = uf,
         Data_inicio = per,
         open = TRUE,
-        save.dbc = FALSE
+        save.dbc = FALSE,
+        return_files = T
       ),
       error = function(e) e
     )
@@ -503,7 +504,7 @@ test_that("Baixa pelo menos 1 arquivo de cada pasta (amostra do crawler)", {
     # Validações mínimas
     # =========================
     expect_type(res, "list")
-    expect_true(all(c("files","dados") %in% names(res)))
+    expect_true(all(c("files","data") %in% names(res)))
 
     expect_s3_class(res$files, "data.frame")
     expect_true(nrow(res$files) >= 1)
@@ -512,7 +513,7 @@ test_that("Baixa pelo menos 1 arquivo de cada pasta (amostra do crawler)", {
     expect_true(any(res$files$status_download %in% c("Download realizado","Erro no download","Nao Realizado")))
 
     # Como open = TRUE, a expectativa é que tente carregar algo
-    expect_type(res$dados, "list")
+    expect_type(res$data, "list")
   }
 })
 
@@ -529,24 +530,25 @@ if (curl::has_internet() == TRUE) {
       Data_fim = 201805,
       open = TRUE,
       filtro = list(coluna = "CNES", valor = "0027014"),
-      colunas = c("COMPETEN", "CNES", "TP_LEITO", "QT_SUS")
+      colunas = c("COMPETEN", "CNES", "TP_LEITO", "QT_SUS"),
+      return_files = T
     )
 
     expect_type(res, "list")
-    expect_true(all(c("files", "dados") %in% names(res)))
+    expect_true(all(c("files", "data") %in% names(res)))
 
     expect_s3_class(res$files, "data.frame")
     expect_true(nrow(res$files) > 0)
 
     # Checa filtro
-    expect_true(all(unique(res$dados$CNES) == "0027014"))
+    expect_true(all(unique(res$data$CNES) == "0027014"))
 
     # Checa período
-    expect_true(all(unique(res$dados$COMPETEN) %in% 201801:201805))
+    expect_true(all(unique(res$data$COMPETEN) %in% 201801:201805))
 
     # Checa colunas selecionadas
     expect_setequal(
-      names(res$dados),
+      names(res$data),
       c("COMPETEN", "CNES", "TP_LEITO", "QT_SUS")
     )
   })

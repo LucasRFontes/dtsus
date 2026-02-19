@@ -631,29 +631,55 @@ dtsus_download_aux <- function(
   ))
 }
 
-
 #' Accessing and Processing DATASUS Microdata
 #'
 #' Downloads public health datasets from the DATASUS FTP server (ftp.datasus.gov.br),
-#' supports data preprocessing and filtering, exports results to DBC or RData formats,
-#' and generates detailed processing logs.
+#' supports data preprocessing and filtering, optionally saves the DBC files,
+#' and returns the downloaded data as a data.frame.
 #'
-#' @param fonte The abbreviation of the health information system to be accessed, e.g. CNES.
-#' @param tipo The abbreviation of the file to be accessed, e.g. LT.
-#' @param uf A specific UF or a vector of UFs specified ny their abbreviations.
-#' @param Data_inicio Start year and month in the format yyyymm.
-#' @param Data_fim End year and month in the format yyyymm.
-#' @param open Logical. If TRUE, the generated file is opened automatically.
-#' @param filtro A filter specification indicating the column and the values to be used for filtering.
-#' @param colunas A specific column or a vector of columns of interest.
-#' @param save.dbc Logical. If TRUE, the output is saved as a DBC file.
-#' @param pasta.dbc Path to the output directory where the generated files will be saved. Defaults to the current working directory.
+#' @param fonte Character. The abbreviation of the health information system to be accessed,
+#'   e.g. "CNES", "SIH", "SIA".
+#' @param tipo Character. The abbreviation of the file type to be accessed, e.g. "LT", "RD".
+#' @param uf Character. A UF code or a vector of UF codes (e.g. "MG", "SP", "BR").
+#' @param Data_inicio Numeric or character. Start date in the format yyyymm (monthly)
+#'   or yyyy (annual), depending on the selected dataset.
+#' @param Data_fim Numeric or character. End date in the format yyyymm (monthly)
+#'   or yyyy (annual), depending on the selected dataset.
+#' @param open Logical. If TRUE, the downloaded files are read and returned as data.
+#' @param filtro List. Optional filter specification with two fields:
+#'   \code{list(coluna = "COL", valor = c("X","Y"))}.
+#' @param colunas Character. Optional vector of columns to keep.
+#' @param save.dbc Logical. If TRUE, saves the downloaded DBC files locally.
+#' @param pasta.dbc Character. Path to the output directory where the DBC files will be saved.
+#'   Defaults to the current working directory if not provided.
+#' @param return_files Logical. If TRUE, returns a list with both the file index and the downloaded data.
+#'   If FALSE, returns only the downloaded data.
 #'
-#' @returns TROCAR a \code{data.frame} with the contents of the DBC files.
+#' @return If \code{return_files = TRUE}, returns a list with:
+#' \describe{
+#'   \item{files}{A data.frame containing the indexed files, download links and status information.}
+#'   \item{data}{A data.frame with the downloaded microdata (only if \code{open = TRUE}).}
+#' }
+#' If \code{return_files = FALSE}, returns only the \code{data} object.
+#'
 #' @export
 #'
 #' @examples
-#' # Inserir exemplo aqui
+#' \dontrun{
+#' res <- dtsus_download(
+#'   fonte = "CNES",
+#'   tipo = "LT",
+#'   uf = "MG",
+#'   Data_inicio = 201801,
+#'   Data_fim = 201803,
+#'   open = TRUE,
+#'   save.dbc = FALSE,
+#'   return_files = TRUE
+#' )
+#'
+#' head(res$data)
+#' }
+
 dtsus_download <- function(
     fonte = NA,
     tipo = NA,
@@ -664,7 +690,8 @@ dtsus_download <- function(
     filtro =NULL,
     colunas = NULL,
     save.dbc = FALSE,
-    pasta.dbc = NULL
+    pasta.dbc = NULL,
+    return_files = T
 ){
 
   # Ajustando possiveis erros de digitação na fonte e tipo
@@ -708,9 +735,11 @@ dtsus_download <- function(
     NULL
   }
 
-
-
-  return(list(files = files,dados = data))
+  if(return_files == T){
+    return(list(files = files,data = data))
+  }else{
+    return(data)
+  }
 
 }
 
