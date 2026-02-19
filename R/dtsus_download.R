@@ -245,7 +245,13 @@ dts_seq_data <- function(Data_inicio, Data_fim){
 dts_files_wb <- function(fonte,tipo,uf,sequencia_datas){
 
   # Preparando lista de arquivos para download
-  files <- data.frame(fonte,tipo,uf,sequencia_datas,stringsAsFactors = F)
+  files <- expand.grid(
+    fonte = fonte,
+    tipo = tipo,
+    uf = uf,
+    sequencia_datas = sequencia_datas,
+    stringsAsFactors = FALSE
+  )
 
   # Corrigindo o sinaSC se necessario
   files$tipo <- ifelse(files$fonte =='SINASC' & files$tipo == 'DN' & files$sequencia_datas <= 1995,'DNR',files$tipo)
