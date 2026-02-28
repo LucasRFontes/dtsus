@@ -15,13 +15,16 @@ Além disso, o dtsus mantém explícito o que foi efetivamente realizado na extr
 ## Instalação
 
 O pacote {dtsus} depende do pacote {read.dbc}, que não está disponível no CRAN.
-
+Primeiro instale o read.dbc
 ```r
 install.packages("remotes")
 
 # Instalar dependência
 remotes::install_github("danicat/read.dbc")
+```
+Depois instale o dtsus
 
+```r
 # Instalar dtsus
 remotes::install_github("LucasRFontes/dtsus")
 ```
