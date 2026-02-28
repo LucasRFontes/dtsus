@@ -14,23 +14,15 @@ Além disso, o dtsus mantém explícito o que foi efetivamente realizado na extr
 
 ## Instalação
 
-O **dtsus** está disponível na versão de desenvolvimento no GitHub.
-
-Para instalar, recomenda-se o uso do pacote `{pak}`:
+O pacote {dtsus} depende do pacote {read.dbc}, que não está disponível no CRAN.
 
 ```r
-# Instale o pak caso ainda não tenha
-install.packages("pak")
-
-# Instale o dtsus
-pak::pak("LucasRFontes/dtsus")
-``` 
-Alternativamente, é possível instalar utilizando o {remotes}:
-``` r
-# Instale o remotes caso ainda não tenha
 install.packages("remotes")
 
-# Instale o dtsus
+# Instalar dependência
+remotes::install_github("danicat/read.dbc")
+
+# Instalar dtsus
 remotes::install_github("LucasRFontes/dtsus")
 ```
 
