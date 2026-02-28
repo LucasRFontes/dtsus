@@ -14,7 +14,7 @@ Além disso, o dtsus mantém explícito o que foi efetivamente realizado na extr
 
 ## Instalação
 
-O pacote {dtsus} depende do pacote {read.dbc}, que não está disponível no CRAN.
+O pacote `dtsus` depende do pacote `read.dbc`, que não está disponível no CRAN.
 Primeiro instale o read.dbc
 ```r
 install.packages("remotes")
