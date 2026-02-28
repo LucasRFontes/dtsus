@@ -93,5 +93,40 @@ SIM <- dtsus_download(
   save.dbc = TRUE
 )
 
+### 📌 4. Produção Ambulatorial (SIA – SP – Set/2024 a Dez/2024)
+
+Download da Produção Ambulatorial (SIA) do estado de São Paulo, de setembro a dezembro de 2024, aplicando:
+
+- Filtro para procedimentos específicos (`PA_PROC_ID`)
+- Seleção de colunas
+- Salvamento dos arquivos no formato `.dbc`
+- Carregamento automático da base no R
+
+```r
+library(dtsus)
+
+SIA <- dtsus_download(
+  fonte = "SIA",
+  tipo = "PA",
+  uf = "SP",
+  Data_inicio = 202409,
+  Data_fim = 202412,
+  filtro = list(
+    coluna = "PA_PROC_ID",
+    valor = c("0301060096", "0301060037")
+  ),
+  open = TRUE,
+  save.dbc = TRUE,
+  colunas = c(
+    "PA_PROC_ID",
+    "PA_CODUNI",
+    "PA_QTDAPR",
+    "PA_QTDPRO"
+  ),
+  pasta.dbc = "Arquivo"
+)
+
+dados <- SIA$data
+```
 files <- SIM$files  # arquivos baixados
 ```
