@@ -129,5 +129,3 @@ SIA <- dtsus_download(
 
 dados <- SIA$data
 ```
-files <- SIM$files  # arquivos baixados
-```
