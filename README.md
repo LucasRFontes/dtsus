@@ -92,6 +92,7 @@ SIM <- dtsus_download(
   open = FALSE,
   save.dbc = TRUE
 )
+```
 
 ### 📌 4. Produção Ambulatorial (SIA – SP – Set/2024 a Dez/2024)
 
