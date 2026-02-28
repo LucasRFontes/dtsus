@@ -11,15 +11,28 @@ Um jeito rápido e controlado de acessar os dados do DATASUS em R.
 O **dtsus** foi desenvolvido para simplificar o acesso aos microdados públicos disponibilizados pelo DATASUS. O pacote permite baixar, salvar e ler arquivos disponibilizados pelo DATASUS, com aplicação prévia de filtros e seleção de colunas, tornando o processo mais eficiente e reduzindo o processamento desnecessário.
 
 Além disso, o dtsus mantém explícito o que foi efetivamente realizado na extração e preparação dos dados, favorecendo fluxos de trabalho reprodutíveis e com total controle sobre as etapas executadas.
-## Installation
 
-You can install the development version of dtsus from
-[GitHub](https://github.com/) with:
+## Instalação
 
-``` r
-# install.packages("pak")
+O **dtsus** está disponível na versão de desenvolvimento no GitHub.
+
+Para instalar, recomenda-se o uso do pacote `{pak}`:
+
+```r
+# Instale o pak caso ainda não tenha
+install.packages("pak")
+
+# Instale o dtsus
 pak::pak("LucasRFontes/dtsus")
-```
+
+Alternativamente, é possível instalar utilizando o {remotes}:
+
+# Instale o remotes caso ainda não tenha
+install.packages("remotes")
+
+# Instale o dtsus
+remotes::install_github("LucasRFontes/dtsus")
+
 
 ## Example
 
