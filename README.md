@@ -69,5 +69,29 @@ SIH <- dtsus_download(
 )
 
 files <- SIH$files  # arquivos baixados
-dados <- SIH$data   # base filtrada com colunas selecionadas
+
+
+### 📌 3. Informações sobre Mortalidade (MG – 2020)
+
+Download dos dados do Sistema de Informações sobre Mortalidade (SIM) de Minas Gerais, ano de 2020.
+
+Neste exemplo:
+
+- O download é realizado, mas os dados **não são carregados no R** (`open = FALSE`)
+- Os arquivos são salvos no formato original `.dbc` (`save.dbc = TRUE`)
+- É possível definir o diretório onde os arquivos serão armazenados (`pasta.dbc = "caminho/da/pasta"`)
+
+```r
+library(dtsus)
+
+SIM <- dtsus_download(
+  fonte = "SIM",
+  tipo = "DO",
+  uf = "MG",
+  Data_inicio = 2020,
+  open = FALSE,
+  save.dbc = TRUE
+)
+
+files <- SIM$files  # arquivos baixados
 ```
