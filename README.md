@@ -69,7 +69,7 @@ SIH <- dtsus_download(
 )
 
 files <- SIH$files  # arquivos baixados
-
+```
 
 ### 📌 3. Informações sobre Mortalidade (MG – 2020)
 
