@@ -1,40 +1,73 @@
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 # dtsus
-
-<!-- badges: start -->
-<!-- badges: end -->
 
 Um jeito rápido e controlado de acessar os dados do DATASUS em R.
 
 O **dtsus** foi desenvolvido para simplificar o acesso aos microdados públicos disponibilizados pelo DATASUS. O pacote permite baixar, salvar e ler arquivos disponibilizados pelo DATASUS, com aplicação prévia de filtros e seleção de colunas, tornando o processo mais eficiente e reduzindo o processamento desnecessário.
 
-Além disso, o dtsus mantém explícito o que foi efetivamente realizado na extração e preparação dos dados, favorecendo fluxos de trabalho reprodutíveis e com total controle sobre as etapas executadas.
+Além disso, o **dtsus** mantém explícito o que foi efetivamente realizado na extração e preparação dos dados, favorecendo fluxos de trabalho reprodutíveis e com total controle sobre as etapas executadas.
+
+---
 
 ## Instalação
 
-O pacote `dtsus` depende do pacote `read.dbc`, que não está disponível no CRAN.
-Primeiro instale o read.dbc
+O pacote **dtsus** depende do pacote `read.dbc`, que não está disponível no CRAN.
+
+Primeiro, instale a dependência:
+
 ```r
 install.packages("remotes")
 
-# Instalar dependência
+# Instalar read.dbc
 remotes::install_github("danicat/read.dbc")
 ```
-Depois instale o dtsus
+
+Em seguida, instale o **dtsus**:
 
 ```r
 # Instalar dtsus
 remotes::install_github("LucasRFontes/dtsus")
 ```
 
-## Example
+---
 
-This is a basic example which shows you how to solve a common problem:
+## Exemplo
 
+### 📌 1. Leitos cadastrados no CNES (RJ – Janeiro/2023)
 
-#library(dtsus)
-## basic example code
+Download da base contendo os leitos cadastrados no CNES, referente a janeiro de 2023, para o estado do Rio de Janeiro:
+
+```r
+library(dtsus)
+
+CNES <- dtsus_download(
+  fonte = "CNES",
+  tipo = "LT",
+  uf = "RJ",
+  Data_inicio = 202301
+)
+
+files <- CNES$files  # arquivos baixados
+dados <- CNES$data   # base de dados carregada
 ```
 
+---
+
+### 📌 2. Internações Hospitalares (PA – Nov/2024 a Fev/2025)
+
+Download dos dados de Internação Hospitalar do Pará, de novembro de 2024 a fevereiro de 2025, selecionando apenas as colunas de CNES, Diagnóstico Principal e Município de Residência:
+
+```r
+library(dtsus)
+
+SIH <- dtsus_download(
+  fonte = "SIH",
+  tipo = "RD",
+  Data_inicio = 202411,
+  Data_fim = 202502,
+  uf = "PA",
+  colunas = c("CNES", "DIAG_PRINC", "MUNIC_RES")
+)
+
+files <- SIH$files  # arquivos baixados
+dados <- SIH$data   # base filtrada com colunas selecionadas
+```
