@@ -24,21 +24,21 @@ install.packages("pak")
 
 # Instale o dtsus
 pak::pak("LucasRFontes/dtsus")
-
+``` r
 Alternativamente, é possível instalar utilizando o {remotes}:
-
+``` r
 # Instale o remotes caso ainda não tenha
 install.packages("remotes")
 
 # Instale o dtsus
 remotes::install_github("LucasRFontes/dtsus")
-
+``` r
 
 ## Example
 
 This is a basic example which shows you how to solve a common problem:
 
-``` r
+
 #library(dtsus)
 ## basic example code
 ```
