@@ -4,7 +4,6 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![R >= 3.5](https://img.shields.io/badge/R-%3E%3D%203.5-blue)](https://cran.r-project.org/)
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![R-CMD-check](https://github.com/LucasRFontes/dtsus/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LucasRFontes/dtsus/actions/workflows/R-CMD-check.yaml)
 [![GitHub issues](https://img.shields.io/badge/issues-feedback-red)](https://github.com/LucasRFontes/dtsus/issues)
 
 Um jeito rápido e controlado de acessar os dados do DATASUS em R.
