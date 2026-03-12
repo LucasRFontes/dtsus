@@ -1,4 +1,11 @@
 # dtsus
+[![remotes](https://img.shields.io/badge/install%20with-remotes-blue)](https://github.com/LucasRFontes/dtsus)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![R >= 3.5](https://img.shields.io/badge/R-%3E%3D%203.5-blue)](https://cran.r-project.org/)
+[![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![R-CMD-check](https://github.com/LucasRFontes/dtsus/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LucasRFontes/dtsus/actions/workflows/R-CMD-check.yaml)
+[![GitHub issues](https://img.shields.io/github/issues/LucasRFontes/dtsus)](https://github.com/LucasRFontes/dtsus/issues)
+
 
 Um jeito rápido e controlado de acessar os dados do DATASUS em R.
 
