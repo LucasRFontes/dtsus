@@ -9,7 +9,7 @@ Além disso, o **dtsus** mantém explícito o que foi efetivamente realizado na 
 ---
 
 ## Instalação
-
+[![install with remotes](https://img.shields.io/badge/install%20with-remotes-blue)](https://github.com/LucasRFontes/dtsus)
 O pacote **dtsus** depende do pacote `read.dbc`, que não está disponível no CRAN.
 
 Primeiro, instale a dependência:
