@@ -136,3 +136,12 @@ SIA <- dtsus_download(
 
 dados <- SIA$data
 ```
+
+
+## Observações
+
+- Os dados são obtidos diretamente das bases públicas do DATASUS
+- A disponibilidade pode variar conforme o sistema e período
+- O pacote utiliza internamente o pacote `read.dbc` para leitura dos arquivos .dbc
+
+Agradecimento aos desenvolvedores do pacote `read.dbc`, que viabilizam a leitura eficiente dos dados do DATASUS no R.
