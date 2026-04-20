@@ -17,7 +17,8 @@ BugReports: https://github.com/LucasRFontes/dtsus/issues
 Imports:
     curl,
     RCurl,
-    read.dbc
+    read.dbc,
+    data.table
 Remotes:
     danicat/read.dbc
 Suggests:
