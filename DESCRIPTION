@@ -1,6 +1,6 @@
 Package: dtsus
 Title: Download, Index and Process DATASUS DBC Microdata
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: c(person("Lucas", "Fontes", email = "lucasrodriguesfontes@hotmail.com", role = c("aut", "cre")), person("Raquel", "Schneider", email = "raquelschneider03@gmail.com", role = "aut"))
 Description: Tools for discover, index, download and process public
     health microdata from the DATASUS FTP server (ftp.datasus.gov.br).
