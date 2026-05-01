@@ -125,6 +125,22 @@ test_that("PASTA NAO EXISTE", {
   )
 
 })
+# Validate path
+# tests/testthat/test-dts_validate_path.R
+test_that("dts_validate_path works", {
+
+  # Setup
+  temp_dir <- tempfile("dtsus_test")
+  dir.create(temp_dir)
+  on.exit(unlink(temp_dir, recursive = TRUE))
+
+  # Caso certo: retorna o caminho
+  expect_equal(dts_validate_path(temp_dir), temp_dir)
+
+  # Caso errado: NULL dá erro
+  expect_error(dts_validate_path(NULL), "nao encontrada")
+
+})
 
 # SEQUENCIA DE DATAS
 test_that('Sequencia correta',{
@@ -574,3 +590,65 @@ if (curl::has_internet() == TRUE) {
   })
 
 }
+
+# testando o dtsus_load
+test_that("dtsus_load integração completa", {
+  skip_if_offline()
+  skip_on_cran()
+
+  # 1. Baixar e salvar arquivo
+  pasta_teste <- tempdir()
+
+  res_download <- dtsus_download(
+    fonte = "CNES",
+    tipo = "LT",
+    uf = "MG",
+    Data_inicio = 201801,
+    open = FALSE,
+    save.dbc = TRUE,
+    pasta.dbc = pasta_teste,
+    return_files = TRUE
+  )
+
+  # Verifica se baixou
+  expect_true(
+    file.exists(file.path(pasta_teste, res_download$files$arquivos[1]))
+  )
+
+  # 2. Ler com dtsus_load
+  res_load <- dtsus_load(
+    fonte = "CNES",
+    tipo = "LT",
+    uf = "MG",
+    Data_inicio = 201801,
+    pasta.dbc = pasta_teste,
+    verbose = FALSE
+  )
+
+  expect_type(res_load, "list")
+  expect_true(all(c("files", "data") %in% names(res_load)))
+  expect_s3_class(res_load$data, "data.frame")
+  expect_true(nrow(res_load$data) > 0)
+  expect_equal(res_load$files$status_load[1], "Carregado")
+
+  # 3. Tentar ler arquivo inexistente
+  res_vazio <- suppressWarnings(
+    dtsus_load(
+      fonte = "CNES",
+      tipo = "LT",
+      uf = "AC",
+      Data_inicio = 201912,
+      pasta.dbc = pasta_teste,
+      verbose = FALSE
+    )
+  )
+
+  expect_null(res_vazio$data)
+  expect_true(all(is.na(res_vazio$files$status_load)))
+
+  expect_null(res_vazio$data)
+  expect_true(all(is.na(res_vazio$files$status_load)))
+
+  # Limpeza
+  unlink(file.path(pasta_teste, res_download$files$arquivos[1]))
+})

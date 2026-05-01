@@ -194,3 +194,16 @@ dts_validate_dbc <- function(save.dbc, pasta.dbc) {
   }
 
 }
+
+
+# valida a pasta que armazena o dbc
+dts_validate_path <- function(pasta.dbc) {
+
+  # Validando a pasta que salva o  dbc
+  if (is.null(pasta.dbc) || !dir.exists(pasta.dbc)) {
+    stop(
+      "[AVISO] Pasta selecionada nao encontrada.",call. = FALSE)
+  }
+  return(pasta.dbc)
+
+}
