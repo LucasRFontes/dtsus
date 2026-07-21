@@ -1,27 +1,43 @@
-# dtsus
+dtsus
+================
 
 [![remotes](https://img.shields.io/badge/install%20with-remotes-blue)](https://github.com/LucasRFontes/dtsus)
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![R >= 3.5](https://img.shields.io/badge/R-%3E%3D%203.5-blue)](https://cran.r-project.org/)
-[![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![GitHub issues](https://img.shields.io/badge/issues-feedback-red)](https://github.com/LucasRFontes/dtsus/issues)
+[![License: AGPL
+v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![R \>=
+3.5](https://img.shields.io/badge/R-%3E%3D%203.5-blue)](https://cran.r-project.org/)
+[![Project Status:
+Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![GitHub
+issues](https://img.shields.io/badge/issues-feedback-red)](https://github.com/LucasRFontes/dtsus/issues)
 
-Um pacote R rápido e controlado de acessar os dados do DATASUS em R.
+Um pacote R que oferece uma forma rápida e controlada de acessar os
+dados do DATASUS.
 
-O **dtsus** foi desenvolvido para simplificar o acesso aos microdados públicos disponibilizados pelo DATASUS. O pacote permite baixar, salvar e ler arquivos disponibilizados pelo DATASUS, com aplicação prévia de filtros e seleção de colunas, tornando o processo mais eficiente e reduzindo o processamento desnecessário.
+O **dtsus** foi desenvolvido para simplificar o acesso aos microdados
+públicos disponibilizados pelo DATASUS. O pacote permite baixar, salvar
+e ler arquivos, com aplicação prévia de filtros e seleção de colunas.
+Essa abordagem torna o processo mais eficiente e reduz o processamento
+desnecessário.
 
-Além disso, o **dtsus** mantém explícito o que foi efetivamente realizado na extração e preparação dos dados, favorecendo fluxos de trabalho reprodutíveis e com total controle sobre as etapas executadas.
+Além disso, o **dtsus** mantém explícito o que foi efetivamente
+realizado na extração e preparação dos dados, favorecendo fluxos de
+trabalho reprodutíveis e garantindo maior transparência e controle sobre
+as etapas executadas.
 
----
+------------------------------------------------------------------------
 
 ## Instalação
-[![install with remotes](https://img.shields.io/badge/install%20with-remotes-blue)](https://github.com/LucasRFontes/dtsus)
 
-O pacote **dtsus** depende do pacote `read.dbc`, que não está disponível no CRAN.
+[![install with
+remotes](https://img.shields.io/badge/install%20with-remotes-blue)](https://github.com/LucasRFontes/dtsus)
+
+O pacote **dtsus** depende do pacote `read.dbc`, que não está disponível
+no CRAN.
 
 Primeiro, instale a dependência:
 
-```r
+``` r
 install.packages("remotes")
 
 # Instalar read.dbc
@@ -30,20 +46,22 @@ remotes::install_github("danicat/read.dbc")
 
 Em seguida, instale o **dtsus**:
 
-```r
+``` r
 # Instalar dtsus
 remotes::install_github("LucasRFontes/dtsus")
 ```
 
----
+------------------------------------------------------------------------
 
-## Exemplo
+## Exemplos
 
 ### 📌 1. Leitos cadastrados no CNES (RJ – Janeiro/2023)
 
-Download da base contendo os leitos cadastrados no CNES, referente a janeiro de 2023, para o estado do Rio de Janeiro:
+Download da base de leitos do Cadastro Nacional de Estabelecimentos de
+Saúde (CNES) referente ao estado do Rio de Janeiro, para a competência
+de janeiro de 2023:
 
-```r
+``` r
 library(dtsus)
 
 CNES <- dtsus_download(
@@ -57,13 +75,16 @@ files <- CNES$files  # arquivos baixados
 dados <- CNES$data   # base de dados carregada
 ```
 
----
+------------------------------------------------------------------------
 
 ### 📌 2. Internações Hospitalares (PA – Nov/2024 a Fev/2025)
 
-Download dos dados de Internação Hospitalar do Pará, de novembro de 2024 a fevereiro de 2025, selecionando apenas as colunas de CNES, Diagnóstico Principal e Município de Residência:
+Download dos dados de Internação do Sistema de Informações Hospitalares
+(SIH) para o estado do Pará, no período de novembro de 2024 a fevereiro
+de 2025, selecionando apenas as colunas *CNES*, *Diagnóstico Principal*
+e *Município de Residência*:
 
-```r
+``` r
 library(dtsus)
 
 SIH <- dtsus_download(
@@ -80,15 +101,18 @@ files <- SIH$files  # arquivos baixados
 
 ### 📌 3. Informações sobre Mortalidade (MG – 2020)
 
-Download dos dados do Sistema de Informações sobre Mortalidade (SIM) de Minas Gerais, ano de 2020.
+Download dos dados do Sistema de Informações sobre Mortalidade (SIM) de
+Minas Gerais, referentes ao ano de 2020.
 
 Neste exemplo:
 
-- O download é realizado, mas os dados **não são carregados no R** (`open = FALSE`)
-- Os arquivos são salvos no formato original `.dbc` (`save.dbc = TRUE`)
-- É possível definir o diretório onde os arquivos serão armazenados (`pasta.dbc = "caminho/da/pasta"`)
+- O download é realizado, mas os dados **não são carregados no R**
+  (`open = FALSE`).
+- Os arquivos são salvos no formato original `.dbc` (`save.dbc = TRUE`).
+- É possível definir o diretório onde os arquivos serão armazenados por
+  meio do argumento `pasta.dbc` (`pasta.dbc = "caminho/da/pasta"`).
 
-```r
+``` r
 library(dtsus)
 
 SIM <- dtsus_download(
@@ -103,14 +127,16 @@ SIM <- dtsus_download(
 
 ### 📌 4. Produção Ambulatorial (SIA – SP – Set/2024 a Dez/2024)
 
-Download da Produção Ambulatorial (SIA) do estado de São Paulo, de setembro a dezembro de 2024, aplicando:
+Download dos dados de Produção Ambulatorial do Sistema de Informações
+Ambulatoriais (SIA) para o estado de São Paulo, de setembro a dezembro
+de 2024, aplicando:
 
 - Filtro para procedimentos específicos (`PA_PROC_ID`)
 - Seleção de colunas
 - Salvamento dos arquivos no formato `.dbc`
-- Carregamento automático da base no R
+- Carregamento automático da base de dados no R
 
-```r
+``` r
 library(dtsus)
 
 SIA <- dtsus_download(
@@ -137,11 +163,12 @@ SIA <- dtsus_download(
 dados <- SIA$data
 ```
 
-
 ## Observações
 
-- Os dados são obtidos diretamente das bases públicas do DATASUS
-- A disponibilidade pode variar conforme o sistema e período
-- O pacote utiliza internamente o pacote `read.dbc` para leitura dos arquivos .dbc
+- Os dados são obtidos diretamente das bases públicas do DATASUS.
+- A disponibilidade pode variar conforme o sistema e período.
+- O pacote utiliza internamente o pacote `read.dbc` para leitura dos
+  arquivos .dbc
 
-Agradecimento aos desenvolvedores do pacote `read.dbc`, que viabilizam a leitura eficiente dos dados do DATASUS no R.
+Agradecimento aos desenvolvedores do pacote `read.dbc`, que viabilizam a
+leitura eficiente dos dados do DATASUS no R.
