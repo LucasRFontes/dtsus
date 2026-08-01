@@ -14,6 +14,7 @@ dtsus_download(
   filtro = NULL,
   colunas = NULL,
   save.dbc = FALSE,
+  save.json = TRUE,
   pasta.dbc = NULL,
   return_files = T
 )
@@ -40,6 +41,8 @@ or yyyy (annual), depending on the selected dataset.}
 \item{colunas}{Character. Optional vector of columns to keep.}
 
 \item{save.dbc}{Logical. If TRUE, saves the downloaded DBC files locally.}
+
+\item{save.json}{Logical. If TRUE, saves a JSON metadata file alongside the DBC file. Requires \code{save.dbc = TRUE}. Defaults to TRUE.}
 
 \item{pasta.dbc}{Character. Path to the output directory where the DBC files will be saved.
 Defaults to the current working directory if not provided.}

@@ -2,3 +2,6 @@
 
 export(dtsus_download)
 export(dtsus_load)
+export(dtsus_refresh)
+importFrom(curl,has_internet)
+importFrom(tools,file_path_sans_ext)

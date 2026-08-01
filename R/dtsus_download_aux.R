@@ -2,6 +2,7 @@
 dtsus_download_aux <- function(
     files,
     save.dbc = FALSE,
+    save.json = TRUE,
     pasta.dbc = NULL,
     open = TRUE,
     filtro = NULL,
@@ -23,26 +24,19 @@ dtsus_download_aux <- function(
 
     # DOWNLOAD
     tryCatch({
-
       temp <- tempfile(fileext = ".dbc")
-
       withCallingHandlers(
         utils::download.file(l, temp, mode = "wb", method = "libcurl"),
         warning = function(w) stop(w)
       )
-
       files$status_download[i] <- "Download realizado"
       message("[INFO] Download realizado: ", l)
-
     }, error = function(e) {
-
       files$status_download[i] <- "Erro no download"
       message("[ERRO] Falha no download: ", l)
       message("[ERRO] Motivo: ", conditionMessage(e))
-
       temp <- NULL
     })
-
 
     files$dt_hr[i] <- data_hora
 
@@ -64,29 +58,33 @@ dtsus_download_aux <- function(
           pasta.dbc
         ), call. = FALSE)
       })
+
+      if (isTRUE(save.json)) {
+        tryCatch({
+          dts_salvar_metadados(files[i, ], temp, pasta.dbc)
+        }, error = function(e) {
+          warning(sprintf(
+            "[AVISO] Nao foi possivel salvar os metadados: %s",
+            conditionMessage(e)
+          ), call. = FALSE)
+        })
+      }
     }
 
     # ABRIR E PROCESSAR
     if (isTRUE(open) &&
         files$status_download[i] == "Download realizado") {
-
       tryCatch({
-
         data_temp <- read.dbc::read.dbc(temp, as.is = TRUE)
-
         if (!is.null(filtro)) {
           data_temp <- dts_filter_Df(filtro, data_temp)
         }
-
         if (!is.null(colunas)) {
           data_temp <- dts_select_col(colunas, data_temp)
         }
-
         data_list[[length(data_list) + 1]] <- data_temp
         files$status_load[i] <- "Carregado"
-
         message("Arquivo lido: ", l)
-
       }, error = function(e) {
         files$status_load[i] <- "Erro na leitura"
         warning(sprintf(

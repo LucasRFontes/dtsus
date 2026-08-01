@@ -18,6 +18,7 @@
 #'   \code{list(coluna = "COL", valor = c("X","Y"))}.
 #' @param colunas Character. Optional vector of columns to keep.
 #' @param save.dbc Logical. If TRUE, saves the downloaded DBC files locally.
+#' @param save.json Logical. If TRUE, saves a JSON metadata file alongside the DBC file. Requires \code{save.dbc = TRUE}. Defaults to TRUE.
 #' @param pasta.dbc Character. Path to the output directory where the DBC files will be saved.
 #'   Defaults to the current working directory if not provided.
 #' @param return_files Logical. If TRUE, returns a list with both the file index and the downloaded data.
@@ -58,6 +59,7 @@ dtsus_download <- function(
     filtro =NULL,
     colunas = NULL,
     save.dbc = FALSE,
+    save.json = TRUE,
     pasta.dbc = NULL,
     return_files = T
 ){
@@ -92,9 +94,15 @@ dtsus_download <- function(
   files <- dts_files_lnk(files)
 
   # valida a pasta DBC
-  pasta.dbc <- dts_validate_dbc(save.dbc,pasta.dbc)
+  pasta.dbc <- dts_validate_dir(save = save.dbc,path = pasta.dbc, tipo = 'DBC')
 
-  res <-dtsus_download_aux(files,save.dbc,pasta.dbc,open,filtro,colunas)
+  res <-dtsus_download_aux(files = files,
+                           save.dbc = save.dbc,
+                           save.json = save.json,
+                           pasta.dbc = pasta.dbc,
+                           open = open,
+                           filtro = filtro,
+                           colunas = colunas)
   files <- res$files
 
   data <- if (length(res$data) > 0) {

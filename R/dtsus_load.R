@@ -1,3 +1,4 @@
+
 #' Loads and Processes DATASUS Microdata
 #'
 #' Reads previously downloaded DATASUS DBC files from a local directory,
@@ -57,7 +58,7 @@ dtsus_load <- function(
     verbose = FALSE
 ){
 
-  # Validações
+  # Validacoes
   font_valid <- dts_validate_fonte_tipo(fonte, tipo)
   fonte <- font_valid$fonte
   tipo <- font_valid$tipo
@@ -81,7 +82,7 @@ dtsus_load <- function(
 
   files <- dts_files_wb(fonte, tipo, uf, sequencia_datas)
 
-  # Filtrar arquivos locais por prefixo (sem regex pesada)
+  # Filtrar arquivos locais por prefixo
   base_names <- basename(files_path)
 
   filtrados <- files_path[
@@ -117,7 +118,7 @@ dtsus_load <- function(
   idx <- which(files$existe_local)
 
   if (length(idx) == 0) {
-    warning("[AVISO] Nenhum arquivo disponível para leitura.", call. = FALSE)
+    warning("[AVISO] Nenhum arquivo disponivel para leitura.", call. = FALSE)
   }
 
   for (i in idx) {

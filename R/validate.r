@@ -177,24 +177,33 @@ dts_validate_data <- function(x,periodicidade) {
 
 }
 
-# Valida a pasta que armazena o dbc
-dts_validate_dbc <- function(save.dbc, pasta.dbc) {
+# Valida a pasta que armazena o dbc e o parquet
+dts_validate_dir <- function(
+    save = TRUE,
+    path = NULL,
+    tipo = "arquivo"
+){
 
-  # Validando a pasta para receber o dbc
-  if (!isTRUE(save.dbc)){return(NULL)}
-  if (is.null(pasta.dbc) || !dir.exists(pasta.dbc)) {
-    warning(sprintf(
-      "[AVISO] Pasta de saida nao encontrada. Salvando DBC em: %s",
-      normalizePath(getwd(), winslash = "/", mustWork = FALSE)
-    ), call. = FALSE)
-
-    return(getwd())
-  }else{
-    return(pasta.dbc)
+  if (!isTRUE(save)) {
+    return(NULL)
   }
 
-}
+  if (is.null(path) || !dir.exists(path)) {
 
+    warning(
+      sprintf(
+        "[AVISO] Pasta para %s nao encontrada. Utilizando: %s",
+        tipo,
+        normalizePath(getwd(), winslash = "/", mustWork = FALSE)
+      ),
+      call. = FALSE
+    )
+
+    return(getwd())
+  }
+
+  return(path)
+}
 
 # valida a pasta que armazena o dbc
 dts_validate_path <- function(pasta.dbc) {
@@ -206,4 +215,38 @@ dts_validate_path <- function(pasta.dbc) {
   }
   return(pasta.dbc)
 
+}
+
+
+## VAlida e prepara o request das bases
+dts_preparar_request <- function(fonte,
+                                 tipo,
+                                 uf,
+                                 Data_inicio,
+                                 Data_fim = NULL){
+
+  font_valid <- dts_validate_fonte_tipo(fonte,tipo) # Valida fonte e tipo
+  fonte <- font_valid$fonte
+  tipo <- font_valid$tipo
+  prdcd <- font_valid$periodicidade
+  uf <- dts_validate_uf(uf) # valida a UF
+
+  Data_inicio <- dts_validate_data(Data_inicio,periodicidade = prdcd) # Validando se a data foi preenchida corretamente
+
+  if(!is.null(Data_fim)){
+    Data_fim <- dts_validate_data(Data_fim,periodicidade = prdcd)
+  } # Validando se a data FINAL foi preenchida corretamente
+
+  #criando a sequencia das datas para realizar o downlad
+  sequencia_datas <- dts_seq_data(Data_inicio = Data_inicio,Data_fim = Data_fim)
+
+  files <- dts_files_wb(fonte,tipo,uf,sequencia_datas)
+
+  return(list(
+    fonte = fonte,
+    tipo  = tipo,
+    uf    = uf,
+    periodicidade = prdcd,
+    files = files
+  ))
 }

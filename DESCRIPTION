@@ -18,7 +18,9 @@ Imports:
     curl,
     RCurl,
     read.dbc,
-    data.table
+    data.table,
+    jsonlite,
+    digest
 Remotes:
     danicat/read.dbc
 Suggests:
