@@ -199,7 +199,9 @@ dtsus_refresh <- function(
 
     # Casos em que nao existe o dbc
     files_sem_dbc <- files[!files$Existe.dbc,]
-    files_sem_dbc$Base_Atualizada <- 'DBC Nao encontrado'
+    if(nrow(files_sem_dbc)>0){
+      files_sem_dbc$Base_Atualizada <- 'DBC Nao encontrado'
+    }
     files_sem_dbc <-  unique(files_sem_dbc[c('nome_arquivo','fonte','tipo','uf','sequencia_datas','Base_Atualizada','status_download')])
 
     # atualizadas
@@ -214,8 +216,10 @@ dtsus_refresh <- function(
       files$Existe.dbc & is.na(files$Base_Atualizada),
     ]
 
+    if(nrow(files_sem_metadado)>0){
+      files_sem_metadado$Base_Atualizada <- "Metadado indisponivel"
+    }
 
-    files_sem_metadado$Base_Atualizada <- "Metadado indisponivel"
     files_sem_metadado <- unique(files_sem_metadado[c('nome_arquivo','fonte','tipo','uf','sequencia_datas','Base_Atualizada','status_download')])
 
     files <- rbind(atualizada, files_atualizar, files_sem_dbc, files_sem_metadado)
