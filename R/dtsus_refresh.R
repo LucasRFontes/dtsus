@@ -1,46 +1,47 @@
-#' Atualiza ou verifica a situação dos arquivos DBC locais
+#' Updates or checks the status of local DBC files
 #'
-#' Esta função avalia se os arquivos DBC salvos no computador estão atualizados
-#' em relação aos dados disponíveis no servidor do DATASUS. Ela pode apenas
-#' verificar o status (\code{apenas_verificar = TRUE}) ou realizar o download
-#' automático dos arquivos desatualizados ou inexistentes.
+#' This function evaluates whether the DBC files saved on the computer are up to date
+#' relative to the data available on the DATASUS server. It can either only
+#' check the status (\code{apenas_verificar = TRUE}) or automatically download
+#' outdated or missing files.
 #'
 #' @param fonte Character. Fonte dos dados (ex: "SIH", "SIM", "SINAN").
 #' @param tipo Character. Tipo do dado (ex: "RD", "DO", etc.).
 #' @param uf Character. Unidade da Federação (ex: "SP", "RJ", "BR" para Brasil).
-#' @param Data_inicio Numeric ou character. Data inicial no formato \code{AAAAMM}
-#'     (bases mensais) ou \code{AAAA} (bases anuais), conforme a periodicidade da
-#'     fonte selecionada. Este parâmetro é obrigatório.
-#' @param Data_fim Numeric ou character. Data final no mesmo formato de
-#'     \code{Data_inicio}. Padrão é \code{NULL} (busca apenas a data de início).
-#' @param pasta.dbc Character. Caminho para a pasta onde os arquivos .DBC estão
-#'     salvos. Se \code{NULL}, a função tentará validar ou solicitar o caminho.
-#' @param apenas_verificar Logical. Se \code{TRUE}, a função apenas verifica e
-#'     retorna o status de cada arquivo, sem realizar download. Se \code{FALSE}
-#'     (padrão), baixa os arquivos desatualizados ou faltantes.
+#' @param Data_inicio Numeric ou character. Start date in the format
+#' yyyymm (monthly) or yyyy (annual), depending on the selected dataset.
+#' This parameter is required.
+#' @param Data_fim Numeric ou character. End date in the same format
+#' as \code{Data_inicio}. Default is \code{NULL} (searches for the start
+#' date only).
+#' @param pasta.dbc Character. Path to the folder where the .DBC files are saved.
+#' If \code{NULL}, the function will attempt to validate or request the path.
+#' @param apenas_verificar Logical. If \code{TRUE}, the function only checks
+#' and returns the status of each file without downloading.
+#' If \code{FALSE} (default), it downloads outdated or missing files.
 #'
-#' @return Um \code{data.frame} com as colunas \code{nome_arquivo}, \code{fonte},
-#'   \code{tipo}, \code{uf}, \code{sequencia_datas}, \code{Base_Atualizada}
-#'   (status final de cada arquivo) e \code{status_download} (detalhe da acao
-#'   de download/reconstrucao realizada, ou \code{NA} quando nenhuma acao foi
-#'   necessaria). O formato de retorno e o mesmo independente do valor de
-#'   \code{apenas_verificar}.
+#' @return A \code{data.frame} with the columns \code{nome_arquivo}, \code{fonte},
+#' \code{tipo}, \code{uf}, \code{sequencia_datas}, \code{Base_Atualizada}
+#' (final status of each file), and \code{status_download} (detail of the
+#' download/reconstruction action performed, or \code{NA} when no action was
+#' necessary). The return format is the same regardless of the value of
+#' \code{apenas_verificar}.
 #'
 #' @details
-#' A função realiza as seguintes etapas:
+#' The function performs the following steps:
 #' \enumerate{
-#'   \item Valida o caminho da pasta de destino.
-#'   \item Verifica a conexão com a internet.
-#'   \item Lista os arquivos esperados com base nos parâmetros fornecidos.
-#'   \item Verifica a existência dos arquivos DBC e dos metadados em cache.
-#'   \item Para arquivos com cache, avalia se há atualização disponível no servidor.
-#'   \item Se \code{apenas_verificar = FALSE}, baixa os arquivos que estão
-#'         desatualizados ou ausentes, registrando o status de cada operação.
+#'   \item Validates the destination folder path.
+#'   \item Checks the internet connection.
+#'   \item Lists expected files based on the provided parameters.
+#'   \item Checks for the existence of DBC files and cached metadata.
+#'   \item For cached files, evaluates whether an update is available on the server.
+#'   \item If \code{apenas_verificar = FALSE}, downloads missing or outdated
+#'         files, recording the status of each operation.
 #' }
 #'
 #' @examples
 #' \dontrun{
-#' # Apenas verificar o status dos arquivos de SIH para SP em Jan/2025
+#' # Only check the status of SIH files for SP in Jan/2025
 #' resultado <- dtsus_refresh(
 #'   fonte = "SIH",
 #'   tipo = "RD",
@@ -50,7 +51,7 @@
 #' )
 #' print(resultado)
 #'
-#' # Baixar arquivos desatualizados
+#' # Download outdated files
 #' dtsus_refresh(
 #'   fonte = "SIM",
 #'   tipo = "DO",
