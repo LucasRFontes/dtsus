@@ -217,6 +217,17 @@ dts_validate_path <- function(pasta.dbc) {
 
 }
 
+# Valida se a conexao com a internet esta ok
+dts_validate_internet <- function(verbose = TRUE) {
+
+  if (!curl::has_internet()) {
+    stop("[ERRO] Sem conexao com a internet. Verifique sua rede e tente novamente.",call. = FALSE)
+  }
+
+  if (isTRUE(verbose)) {message("[INFO] Conexao com a internet: OK")}
+
+  invisible(TRUE)
+}
 
 ## VAlida e prepara o request das bases
 dts_preparar_request <- function(fonte,

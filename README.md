@@ -11,19 +11,24 @@ Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repost
 [![GitHub
 issues](https://img.shields.io/badge/issues-feedback-red)](https://github.com/LucasRFontes/dtsus/issues)
 
-Um pacote R que oferece uma forma rápida e controlada de acessar os
-dados do DATASUS.
+Um pacote R para facilitar o acesso e a preparação de dados públicos
+utilizados em análises do Sistema Único de Saúde (SUS).
 
-O **dtsus** foi desenvolvido para simplificar o acesso aos microdados
-públicos disponibilizados pelo DATASUS. O pacote permite baixar, salvar
-e ler arquivos, com aplicação prévia de filtros e seleção de colunas.
-Essa abordagem torna o processo mais eficiente e reduz o processamento
-desnecessário.
+O **dtsus** foi desenvolvido inicialmente para simplificar o acesso aos
+microdados públicos disponibilizados pelo DATASUS. O pacote permite
+baixar, salvar e ler arquivos, com aplicação prévia de filtros e seleção
+de colunas. Essa abordagem torna o processo mais eficiente e reduz o
+processamento desnecessário.
 
-Além disso, o **dtsus** mantém explícito o que foi efetivamente
-realizado na extração e preparação dos dados, favorecendo fluxos de
-trabalho reprodutíveis e garantindo maior transparência e controle sobre
-as etapas executadas.
+Além dos microdados do DATASUS, o pacote também incorpora o acesso a
+fontes complementares relevantes para análises em saúde. Entre elas,
+estão os dados consolidados de beneficiários de planos de saúde
+disponibilizados pela Agência Nacional de Saúde Suplementar (ANS).
+
+O **dtsus** mantém explícito o que foi efetivamente realizado na
+extração e preparação dos dados, favorecendo fluxos de trabalho
+reprodutíveis e garantindo maior transparência e controle sobre as
+etapas executadas.
 
 ------------------------------------------------------------------------
 
@@ -163,9 +168,33 @@ SIA <- dtsus_download(
 dados <- SIA$data
 ```
 
+------------------------------------------------------------------------
+
+### 📌 5. Beneficiários de planos de saúde da ANS (MG – Março/2024)
+
+Download dos dados consolidados de beneficiários de planos de saúde
+disponibilizados pela Agência Nacional de Saúde Suplementar (ANS), para
+Minas Gerais, na competência de março de 2024:
+
+\`\`\`r library(dtsus)
+
+ANS \<- dtsus_pop_ans( ano_mes = “202403”, uf = “MG” )f = “MG” )
+
+A competência deve ser informada no formato AAAAMM e a função retorna um
+data.frame com os dados disponibilizados pela ANS para a unidade
+federativa selecionada.
+
+Para exibir a barra de progresso durante o download, utilize:
+
+ANS \<- dtsus_pop_ans( ano_mes = “202403”, uf = “MG”, quiet = FALSE )
+
 ## Observações
 
-- Os dados são obtidos diretamente das bases públicas do DATASUS.
+- Os microdados dos sistemas de informação do SUS são obtidos
+  diretamente das bases públicas do DATASUS.
+- Os dados de beneficiários de planos de saúde são obtidos diretamente
+  da base pública de dados abertos da Agência Nacional de Saúde
+  Suplementar (ANS).
 - A disponibilidade pode variar conforme o sistema e período.
 - O pacote utiliza internamente o pacote `read.dbc` para leitura dos
   arquivos .dbc

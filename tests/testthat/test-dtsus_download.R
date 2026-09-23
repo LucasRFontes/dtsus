@@ -101,10 +101,13 @@ test_that('Mes inforamdo errado',{
 # save DBC
 test_that("pasta nao informada retorna getwd", {
 
-  resultado <- dts_validate_dir(
-    save = TRUE,
-    path = NULL,
-    tipo = "DBC"
+  expect_warning(
+    resultado <- dts_validate_dir(
+      save = TRUE,
+      path = NULL,
+      tipo = "DBC"
+    ),
+    "Pasta para DBC nao encontrada"
   )
 
   expect_equal(
@@ -114,15 +117,21 @@ test_that("pasta nao informada retorna getwd", {
 
 })
 
-test_that("save = FALSE retorna NULL", {
+test_that("pasta inexistente retorna getwd", {
 
-  resultado <- dts_validate_dir(
-    save = FALSE,
-    path = NULL,
-    tipo = "DBC"
+  expect_warning(
+    resultado <- dts_validate_dir(
+      save = TRUE,
+      path = "NOMEPOUCOPROVAVELDEUMAPASTATER",
+      tipo = "DBC"
+    ),
+    "Pasta para DBC nao encontrada"
   )
 
-  expect_null(resultado)
+  expect_equal(
+    normalizePath(resultado, winslash = "/"),
+    normalizePath(getwd(), winslash = "/")
+  )
 
 })
 
@@ -138,20 +147,6 @@ test_that("pasta existente e retornada", {
 
 })
 
-test_that("pasta inexistente retorna getwd", {
-
-  resultado <- dts_validate_dir(
-    save = TRUE,
-    path = "NOMEPOUCOPROVAVELDEUMAPASTATER",
-    tipo = "DBC"
-  )
-
-  expect_equal(
-    normalizePath(resultado, winslash = "/"),
-    normalizePath(getwd(), winslash = "/")
-  )
-
-})# Validate path
 # tests/testthat/test-dts_validate_path.R
 test_that("dts_validate_path works", {
 
