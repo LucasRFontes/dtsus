@@ -176,9 +176,11 @@ Download dos dados consolidados de beneficiários de planos de saúde
 disponibilizados pela Agência Nacional de Saúde Suplementar (ANS), para
 Minas Gerais, na competência de março de 2024:
 
-\`\`\`r library(dtsus)
+``` r
+ library(dtsus)
 
 ANS \<- dtsus_pop_ans( ano_mes = “202403”, uf = “MG” )f = “MG” )
+```
 
 A competência deve ser informada no formato AAAAMM e a função retorna um
 data.frame com os dados disponibilizados pela ANS para a unidade
@@ -186,7 +188,9 @@ federativa selecionada.
 
 Para exibir a barra de progresso durante o download, utilize:
 
+``` r
 ANS \<- dtsus_pop_ans( ano_mes = “202403”, uf = “MG”, quiet = FALSE )
+```
 
 ## Observações
 
