@@ -1,13 +1,14 @@
 Package: dtsus
-Title: Download, Index and Process DATASUS DBC Microdata
-Version: 0.2.0
+Title: Download, Index and Process Brazilian Public Health Data
+Version: 0.3.0
 Authors@R: c(person("Lucas", "Fontes", email = "lucasrodriguesfontes@hotmail.com", role = c("aut", "cre")), person("Raquel", "Schneider", email = "raquelschneider03@gmail.com", role = "aut"))
-Description: Tools for discover, index, download and process public
-    health microdata from the DATASUS FTP server (ftp.datasus.gov.br).
-    Functions support file listing, batch downloads, reading DBC files,
-    filtering records, selecting variables and exporting results to DBC or
-    RData formats. Designed for reproducible workflows when working with
-    large Brazilian health information systems.
+Description: Tools to discover, download and process public Brazilian
+    health data. The package provides access to DATASUS microdata and
+    complementary public data sources used in health analyses, including
+    beneficiary data from the Brazilian National Supplementary Health
+    Agency (ANS). Functions support file listing, batch downloads, reading
+    DBC files, filtering records, selecting variables and reproducible
+    data processing workflows.
 License: AGPL-3 + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
