@@ -1,3 +1,19 @@
+# dtsus 0.3.0
+
+## Novas funcionalidades
+
+* Adiciona `dtsus_pop_ans()`, para download e leitura dos dados
+  consolidados de beneficiários de planos de saúde disponibilizados
+  pela Agência Nacional de Saúde Suplementar (ANS).
+
+## Melhorias
+
+* Adiciona validação interna de conexão com a internet por meio de
+  `dts_validate_internet()`.
+* Amplia o escopo do pacote para fontes complementares utilizadas
+  em análises do Sistema Único de Saúde.
+* Atualiza documentação e exemplos no README.
+
 # dtsus 0.2.0
 
 * `dtsus_refresh()`: corrige inconsistência de retorno — agora sempre retorna
