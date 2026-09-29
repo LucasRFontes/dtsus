@@ -1,4 +1,20 @@
 url: https://lucasrfontes.github.io/dtsus/
+
 template:
   bootstrap: 5
 
+navbar:
+  structure:
+    left:
+      - home
+      - reference
+      - articles
+      - estudos
+      - news
+
+  components:
+    estudos:
+      text: Estudos
+      menu:
+        - text: "Internações hospitalares no Brasil - 2025"
+          href: articles/internacoes-brasil-2025.html
