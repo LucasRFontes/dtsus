@@ -1,8 +1,9 @@
 pandoc: 3.8.3
 pkgdown: 2.2.1
 pkgdown_sha: ~
-articles: {}
-last_built: 2026-09-29T17:49Z
+articles:
+  articles/internacoes-brasil-2025: internacoes-brasil-2025.html
+last_built: 2026-09-29T19:15Z
 urls:
   reference: https://lucasrfontes.github.io/dtsus/reference
   article: https://lucasrfontes.github.io/dtsus/articles

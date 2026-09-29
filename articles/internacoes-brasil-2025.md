@@ -1,0 +1,172 @@
+# Internações hospitalares no Brasil em 2025
+
+Entre os vários desafios envolvidos no planejamento de políticas
+públicas para o Sistema Único de Saúde, um dos maiores — e talvez um dos
+mais complexos — é estimar qual será a demanda por assistência
+hospitalar em cada território e como organizar a oferta de maneira
+adequada e equilibrada. Afinal, investir em um território, muitas vezes,
+pode significar investir menos em outra região ou em outra área da
+saúde.
+
+Além disso, existe uma conhecida relação entre oferta e utilização dos
+serviços de saúde. Ou seja, quanto maior a disponibilidade de hospitais,
+leitos, especialistas e outros serviços, maior pode ser também a
+utilização desses serviços. Isso não significa, necessariamente, que uma
+maior oferta produza internações sem necessidade, mas mostra que aquilo
+que observamos como demanda também pode ser influenciado pela própria
+estrutura disponível.
+
+## Comparar territórios pode ajudar?
+
+Uma das formas de tentar compreender se a utilização dos serviços
+hospitalares de determinado território está muito acima ou abaixo do
+esperado é compará-la com outros territórios. Idealmente, essa
+comparação deve considerar regiões com características demográficas,
+epidemiológicas, geográficas e socioeconômicas semelhantes.
+
+É claro que esse método também possui limitações. O fato de uma região
+apresentar comportamento semelhante a outras não significa que nenhuma
+delas esteja com uma oferta ideal. Ainda assim, a comparação pode
+funcionar como um importante sinalizador, ajudando a identificar
+territórios que se afastam do padrão e que, por isso, merecem uma
+investigação mais detalhada.
+
+## Como foi calculada a taxa de internação?
+
+Geralmente, esse tipo de cálculo é feito utilizando o número de
+internações realizadas ou, como neste estudo, o número de internações
+que tiveram registro de alta ou óbito em determinado período, dividido
+pela população SUS dependente estimada daquele mesmo território.
+
+A análise pode ser feita de forma global ou com diferentes recortes,
+como procedimentos, especialidades, diagnósticos, faixas etárias e sexo.
+Nesses casos, a população utilizada como denominador também precisa ser
+ajustada de acordo com o recorte analisado.
+
+Para facilitar esse tipo de análise, o pacote R `dtsus` já permitia
+baixar, de forma simples e ágil, os dados do Sistema de Informações
+Hospitalares do SUS — SIH/SUS, onde estão disponíveis os registros das
+internações aprovadas em todo o Brasil.
+
+Mais recentemente, foi criada também uma função que permite baixar os
+dados da população beneficiária de planos de saúde. Foi a partir do
+cruzamento dessas informações com os dados populacionais que foi
+construído o mapa abaixo, apresentando as taxas de internação nas
+Regiões de Saúde de todo o país.
+
+## Mapa interativo
+
+## O que os dados mostram?
+
+No mapa, visualizamos as internações considerando apenas aquelas com
+registro de desfecho hospitalar — alta ou óbito — e classificadas de
+acordo com a Região de Saúde de residência do paciente.
+
+É possível visualizar as internações totais e, separadamente, as
+internações de média e de alta complexidade.
+
+De maneira geral, observa-se uma grande variação nas taxas entre as
+Regiões de Saúde do país. Essa diferença parece ser menor nas
+internações de média complexidade e mais acentuada nas internações de
+alta complexidade.
+
+As maiores taxas aparecem com maior frequência nas regiões Sul e
+Sudeste, principalmente quando analisamos a alta complexidade. No
+Nordeste, algumas Regiões de Saúde que concentram grandes centros
+urbanos e capitais também aparecem entre aquelas com taxas mais elevadas
+de internações de alta complexidade.
+
+É importante destacar que o mapa, por si só, não permite concluir se
+determinada região possui oferta excessiva ou insuficiente de serviços
+hospitalares. As diferenças encontradas podem estar relacionadas a
+diversos fatores, como perfil epidemiológico, estrutura etária da
+população, disponibilidade de serviços, acesso, capacidade de regulação,
+organização da atenção primária e características da rede hospitalar.
+
+O objetivo, portanto, não é definir quais regiões estão “certas” ou
+“erradas”, mas utilizar essas diferenças como um ponto de partida para
+novas perguntas:
+
+**Por que determinada região apresenta uma taxa muito maior que outra?
+Essa diferença está relacionada à maior necessidade da população? À
+maior oferta de serviços? À capacidade de atração de pacientes de outros
+territórios? Ou à organização da própria rede de saúde?**
+
+## Como essa analise foi construída com o R?
+
+O fluxo foi construído em R utilizando o pacote `dtsus` para obtenção
+dos dados do SIH/SUS e da população beneficiária de planos de saúde,
+além de dados populacionais do IBGE e informações territoriais das
+Regiões de Saúde.
+
+De forma resumida, o processo envolveu as seguintes etapas:
+
+1.  **Obtenção das internações aprovadas no SIH/SUS para 2025**
+
+Os dados foram obtidos com a função
+[`dtsus_download()`](https://lucasrfontes.github.io/dtsus/reference/dtsus_download.md).
+
+Exemplo:
+
+``` r
+
+library(dtsus)
+dtsus_download(fonte = 'SIH',tipo = 'RD',uf = 'MG',
+Data_inicio = 202501,Data_fim = 202512)
+```
+
+2.  **Identificação da Região de Saúde de residência dos pacientes** Os
+    municípios de residência foram relacionados às respectivas Regiões
+    de Saúde a partir da divisão territorial utilizada na análise.
+
+3.  **Classificação das internações em média e alta complexidade** A
+    classificação foi realizada a partir das informações disponíveis no
+    SIH/SUS.
+
+4.  **Obtenção da população estimada pelo IBGE** A população de 2025 foi
+    obtida por município a partir do SIDRA/IBGE, utilizando o pacote
+    `sidrar`, e posteriormente agregada por Região de Saúde.
+
+5.  **Obtenção da população beneficiária de planos com cobertura
+    hospitalar** Para essa etapa foi utilizada a função
+    [`dtsus_pop_ans()`](https://lucasrfontes.github.io/dtsus/reference/dtsus_pop_ans.md).
+
+    Exemplo:
+
+    ``` r
+
+    dtsus_pop_ans(
+      competencia = 202512,
+      uf = "MG"
+    )
+    ```
+
+6.  **Estimativa da população SUS dependente** A população SUS
+    dependente foi estimada pela diferença entre a população total e a
+    população beneficiária de planos com cobertura hospitalar.
+
+    ``` r
+
+    populacao_sus <- populacao_total - populacao_plano_hospitalar
+    ```
+
+7.  **Cálculo das taxas de internação por 10 mil habitantes** A taxa foi
+    calculada relacionando as internações com desfecho registrado à
+    população SUS dependente estimada.
+
+``` r
+
+taxa_internacao <- internacoes / populacao_sus * 10000
+```
+
+8.  **Construção do mapa interativo** A visualização foi construída com
+    o pacote `leaflet`, permitindo alternar entre as taxas totais, de
+    média complexidade e de alta complexidade.
+
+Com esse fluxo, foi possível integrar diferentes fontes de dados e
+construir uma medida comparável entre as Regiões de Saúde do país.
+
+``` r
+
+library(dtsus)
+```
