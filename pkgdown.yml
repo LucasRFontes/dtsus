@@ -3,7 +3,7 @@ pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   articles/internacoes-brasil-2025: internacoes-brasil-2025.html
-last_built: 2026-10-02T20:23Z
+last_built: 2026-10-02T21:54Z
 urls:
   reference: https://lucasrfontes.github.io/dtsus/reference
   article: https://lucasrfontes.github.io/dtsus/articles

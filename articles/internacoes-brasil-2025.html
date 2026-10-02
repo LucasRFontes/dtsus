@@ -37,12 +37,6 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/internacoes-brasil-2025.html">Internações hospitalares no Brasil em 2025</a></li>
-  </ul>
-</li>
-<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-estudos" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Estudos</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-estudos">
 <li><a class="dropdown-item" href="../articles/internacoes-brasil-2025.html">Internações hospitalares no Brasil - 2025</a></li>
@@ -183,8 +177,10 @@ das Regiões de Saúde.</p>
 <li><strong>Obtenção das internações aprovadas no SIH/SUS para
 2025</strong></li>
 </ol>
-<p>Os dados foram obtidos com a função
-<code><a href="../reference/dtsus_download.html">dtsus_download()</a></code>.</p>
+<p>Os dados foram obtidos com a função <code><a href="../reference/dtsus_download.html">dtsus_download()</a></code>. O
+exemplo abaixo baixa os dados de Minas Gerais. Para o mapa nacional, o
+mesmo procedimento foi repetido para as 27 UFs e os resultados foram
+empilhados em uma única base.</p>
 <p>Exemplo:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lucasrfontes.github.io/dtsus/">dtsus</a></span><span class="op">)</span></span>
@@ -218,7 +214,7 @@ hospitalar</strong></li>
 <p>Exemplo:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/dtsus_pop_ans.html">dtsus_pop_ans</a></span><span class="op">(</span></span>
-<span>  competencia <span class="op">=</span> <span class="fl">202512</span>,</span>
+<span>  ano_mes <span class="op">=</span> <span class="fl">202512</span>,</span>
 <span>  uf <span class="op">=</span> <span class="st">"MG"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <ol start="6" style="list-style-type: decimal">
@@ -245,8 +241,6 @@ permitindo alternar entre as taxas totais, de média complexidade e de
 alta complexidade.</p>
 <p>Com esse fluxo, foi possível integrar diferentes fontes de dados e
 construir uma medida comparável entre as Regiões de Saúde do país.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lucasrfontes.github.io/dtsus/">dtsus</a></span><span class="op">)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

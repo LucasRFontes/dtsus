@@ -108,6 +108,9 @@ De forma resumida, o processo envolveu as seguintes etapas:
 
 Os dados foram obtidos com a função
 [`dtsus_download()`](https://lucasrfontes.github.io/dtsus/reference/dtsus_download.md).
+O exemplo abaixo baixa os dados de Minas Gerais. Para o mapa nacional, o
+mesmo procedimento foi repetido para as 27 UFs e os resultados foram
+empilhados em uma única base.
 
 Exemplo:
 
@@ -146,7 +149,7 @@ Exemplo:
 ``` r
 
 dtsus_pop_ans(
-  competencia = 202512,
+  ano_mes = 202512,
   uf = "MG"
 )
 ```
@@ -179,8 +182,3 @@ complexidade.
 
 Com esse fluxo, foi possível integrar diferentes fontes de dados e
 construir uma medida comparável entre as Regiões de Saúde do país.
-
-``` r
-
-library(dtsus)
-```
