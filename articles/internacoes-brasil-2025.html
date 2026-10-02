@@ -80,12 +80,12 @@ hospitalar em cada território e organizar a oferta de forma adequada e
 equilibrada. Afinal, alocar recursos em um território, muitas vezes,
 pode significar investir menos em outra região ou em outras áreas da
 saúde.</p>
-<p>Além disso, existe uma conhecida relação entre oferta e a utilização
+<p>Além disso, existe uma conhecida relação entre oferta e utilização
 dos serviços de saúde: quanto maior a disponibilidade de hospitais,
 leitos, especialistas (entre outros serviços), maior tende a ser o uso
 desses recursos. Isso não significa, necessariamente, que uma maior
 oferta produza internações sem necessidade, mas evidencia que aquilo que
-observamos como demanda também pode ser influenciada pela própria
+observamos como demanda também pode ser influenciado pela própria
 estrutura disponível.</p>
 <div class="section level2">
 <h2 id="comparar-territórios-pode-ajudar">Comparar territórios pode ajudar?<a class="anchor" aria-label="anchor" href="#comparar-territ%C3%B3rios-pode-ajudar"></a>
@@ -106,22 +106,23 @@ mais detalhada.</p>
 </h2>
 <p>Geralmente, esse tipo de cálculo é feito utilizando o número de
 internações realizadas ou, como neste estudo, o número de internações
-que tiveram registro de alta hospitalar ou óbito em determinado período,
-dividido pela população SUS-dependente estimada daquele mesmo
-território.</p>
+finalizadas (que tiveram registro de alta ou óbito do paciente) em
+determinado período, dividido pela população SUS-dependente estimada
+daquele mesmo território.</p>
 <p>A análise pode ser feita de forma global ou com diferentes recortes,
-como por procedimentos, especialidades, diagnósticos, faixas etárias e
-sexo. Nesses casos, a população utilizada como denominador também
-precisa ser ajustada de acordo com o recorte analisado.</p>
-<p>Para facilitar esse tipo de análise, o pacote R <code>dtsus</code> já
-permitia baixar, de forma simples e ágil, os dados do Sistema de
-Informações Hospitalares do SUS — SIH/SUS, onde constam os registros das
-internações aprovadas em todo o Brasil.</p>
-<p>Mais recentemente, foi criada também uma função que permite baixar os
-dados da população beneficiária de planos de saúde. Foi a partir do
-cruzamento dessas informações com os dados populacionais que foi
-construído o mapa abaixo, apresentando as taxas de internação nas
-Regiões de Saúde de todo o país.</p>
+como por procedimentos, especialidades médicas, diagnósticos, faixas
+etárias e sexo. Nesses casos, a população utilizada como denominador
+também precisa ser ajustada de acordo com o recorte analisado.</p>
+<p>Para facilitar esse tipo de análise por meio da linguagem
+computacional R, o pacote R <code>dtsus</code> já permitia baixar, de
+forma simples e ágil, os dados do Sistema de Informações Hospitalares do
+SUS — SIH/SUS, onde constam os registros das internações aprovadas em
+todo o Brasil.</p>
+<p>Mais recentemente,também foi adicionada ao pacote uma função que
+permite baixar diretamente os dados da população beneficiária de planos
+de saúde. Foi a partir do cruzamento dessas informações com os dados
+populacionais que foi construído o mapa abaixo, apresentando as taxas de
+internação nas Regiões de Saúde de todo o país.</p>
 </div>
 <div class="section level2">
 <h2 id="mapa-interativo">Mapa interativo<a class="anchor" aria-label="anchor" href="#mapa-interativo"></a>
@@ -132,40 +133,38 @@ Regiões de Saúde de todo o país.</p>
 <div class="section level2">
 <h2 id="o-que-os-dados-mostram">O que os dados mostram?<a class="anchor" aria-label="anchor" href="#o-que-os-dados-mostram"></a>
 </h2>
-<p>No mapa, é possível visualizar as internações considerando apenas
-aquelas com registro de desfecho hospitalar — alta ou óbito —,
-categorizadas pela Região de Saúde de residência do paciente.</p>
-<p>É possível visualizar as taxas de internação considerando o volume
-total de internações quanto os dados estratificados por média e de alta
-complexidade.</p>
+<p>No mapa, visualizamos as internações SUS com registro de desfecho
+hospitalar — alta ou óbito — e classificadas de acordo com a Região de
+Saúde de residência do paciente.</p>
+<p>É possível visualizar tanto a taxa de internação total quanto as
+taxas estratificadas por média e alta complexidade.</p>
 <p>De modo geral, observa-se uma expressiva disparidade nas taxas entre
-as Regiões de Saúde do país. Essa diferença tende a ser menor nas
-internações de média complexidade e mais acentuada nas internações de
-alta complexidade.</p>
-<p>As maiores taxas concentram-se com mais frequência nas regiões Sul e
-Sudeste, principalmente quando analisamos a alta complexidade. No
-Nordeste, algumas Regiões de Saúde que abrigam grandes centros urbanos e
-capitais também aparecem entre aquelas com taxas mais elevadas de
+as Regiões de Saúde do país. Essa diferença apresentou-se em menor
+dimensão nas internações de média complexidade e mais acentuada nas
 internações de alta complexidade.</p>
-<p>Cabe ressaltar que o mapa, por si só, não permite concluir se
-determinada região possui oferta excessiva ou insuficiente de serviços
-hospitalares. As diferenças encontradas podem estar relacionadas a
-diversos fatores, como perfil epidemiológico, estrutura etária da
-população, disponibilidade de serviços, acesso, capacidade de regulação,
-organização da atenção primária e características da rede
-hospitalar.</p>
+<p>As maiores taxas concentram-se com mais frequência nas regiões Sul e
+Sudeste, principalmente quando analisamos o recorte da alta
+complexidade. No Nordeste, algumas Regiões de Saúde que abrigam grandes
+centros urbanos e capitais também aparecem entre aquelas com taxas mais
+elevadas de internações de alta complexidade.</p>
+<p>É importante destacar que o mapa, por si só, não permite concluir se
+determinada região possui oferta adequada, excessiva ou insuficiente de
+serviços hospitalares. As diferenças encontradas podem estar
+relacionadas a diversos fatores, como perfil epidemiológico, estrutura
+etária da população, disponibilidade de serviços, dificuldades físicas
+de acesso, capacidade de regulação assistencial, organização da atenção
+primária e características próprias da rede hospitalar.</p>
 <p>O objetivo, portanto, não é classificar as regiões entre “adequadas”
 ou “inadequadas”, mas utilizar essas assimetrias como ponto de partida
 para novos questionamentos:</p>
 <p><strong>Por que determinada região apresenta uma taxa muito maior que
 outra? Essa diferença está relacionada a uma maior necessidade da
 população? Decorre da maior oferta de serviços e capacidade instalada?
-Deriva da atração de pacientes de outros territórios? Ou decorre da
-própria dinâmica de organização e regulação da rede
+Ou decorre da própria dinâmica de organização e regulação da rede
 assistencial?</strong></p>
 </div>
 <div class="section level2">
-<h2 id="como-essa-analise-foi-construída-com-o-r">Como essa analise foi construída com o R?<a class="anchor" aria-label="anchor" href="#como-essa-analise-foi-constru%C3%ADda-com-o-r"></a>
+<h2 id="como-essa-análise-foi-construída-em-r">Como essa análise foi construída em R?<a class="anchor" aria-label="anchor" href="#como-essa-an%C3%A1lise-foi-constru%C3%ADda-em-r"></a>
 </h2>
 <p>O fluxo foi construído em R utilizando o pacote <code>dtsus</code>
 para obtenção dos dados do SIH/SUS e da população beneficiária de planos
@@ -187,14 +186,15 @@ das Regiões de Saúde.</p>
 <li><strong>Identificação da Região de Saúde de residência dos
 pacientes</strong></li>
 </ol>
-<p>Os municípios de residência foram relacionados às respectivas Regiões
-de Saúde a partir da divisão territorial utilizada na análise.</p>
+<p>Os municípios de residência registrados no SIH/SUS foram associados
+às respectivas Regiões de Saúde a partir do código do município e da
+divisão territorial de saúde adotada em cada estado.</p>
 <ol start="3" style="list-style-type: decimal">
 <li><strong>Classificação das internações em média e alta
 complexidade</strong></li>
 </ol>
-<p>A classificação foi realizada a partir das informações disponíveis no
-SIH/SUS.</p>
+<p>A classificação da complexidade das internações foi obtida a partir
+das informações disponíveis no SIH/SUS.</p>
 <ol start="4" style="list-style-type: decimal">
 <li><strong>Obtenção da população estimada pelo IBGE</strong></li>
 </ol>

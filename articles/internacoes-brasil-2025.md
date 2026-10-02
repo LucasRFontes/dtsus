@@ -8,12 +8,12 @@ equilibrada. Afinal, alocar recursos em um território, muitas vezes,
 pode significar investir menos em outra região ou em outras áreas da
 saúde.
 
-Além disso, existe uma conhecida relação entre oferta e a utilização dos
+Além disso, existe uma conhecida relação entre oferta e utilização dos
 serviços de saúde: quanto maior a disponibilidade de hospitais, leitos,
 especialistas (entre outros serviços), maior tende a ser o uso desses
 recursos. Isso não significa, necessariamente, que uma maior oferta
 produza internações sem necessidade, mas evidencia que aquilo que
-observamos como demanda também pode ser influenciada pela própria
+observamos como demanda também pode ser influenciado pela própria
 estrutura disponível.
 
 ## Comparar territórios pode ajudar?
@@ -34,55 +34,55 @@ detalhada.
 
 Geralmente, esse tipo de cálculo é feito utilizando o número de
 internações realizadas ou, como neste estudo, o número de internações
-que tiveram registro de alta hospitalar ou óbito em determinado período,
-dividido pela população SUS-dependente estimada daquele mesmo
-território.
+finalizadas (que tiveram registro de alta ou óbito do paciente) em
+determinado período, dividido pela população SUS-dependente estimada
+daquele mesmo território.
 
 A análise pode ser feita de forma global ou com diferentes recortes,
-como por procedimentos, especialidades, diagnósticos, faixas etárias e
-sexo. Nesses casos, a população utilizada como denominador também
-precisa ser ajustada de acordo com o recorte analisado.
+como por procedimentos, especialidades médicas, diagnósticos, faixas
+etárias e sexo. Nesses casos, a população utilizada como denominador
+também precisa ser ajustada de acordo com o recorte analisado.
 
-Para facilitar esse tipo de análise, o pacote R `dtsus` já permitia
-baixar, de forma simples e ágil, os dados do Sistema de Informações
-Hospitalares do SUS — SIH/SUS, onde constam os registros das internações
-aprovadas em todo o Brasil.
+Para facilitar esse tipo de análise por meio da linguagem computacional
+R, o pacote R `dtsus` já permitia baixar, de forma simples e ágil, os
+dados do Sistema de Informações Hospitalares do SUS — SIH/SUS, onde
+constam os registros das internações aprovadas em todo o Brasil.
 
-Mais recentemente, foi criada também uma função que permite baixar os
-dados da população beneficiária de planos de saúde. Foi a partir do
-cruzamento dessas informações com os dados populacionais que foi
-construído o mapa abaixo, apresentando as taxas de internação nas
-Regiões de Saúde de todo o país.
+Mais recentemente,também foi adicionada ao pacote uma função que permite
+baixar diretamente os dados da população beneficiária de planos de
+saúde. Foi a partir do cruzamento dessas informações com os dados
+populacionais que foi construído o mapa abaixo, apresentando as taxas de
+internação nas Regiões de Saúde de todo o país.
 
 ## Mapa interativo
 
 ## O que os dados mostram?
 
-No mapa, é possível visualizar as internações considerando apenas
-aquelas com registro de desfecho hospitalar — alta ou óbito —,
-categorizadas pela Região de Saúde de residência do paciente.
+No mapa, visualizamos as internações SUS com registro de desfecho
+hospitalar — alta ou óbito — e classificadas de acordo com a Região de
+Saúde de residência do paciente.
 
-É possível visualizar as taxas de internação considerando o volume total
-de internações quanto os dados estratificados por média e de alta
-complexidade.
+É possível visualizar tanto a taxa de internação total quanto as taxas
+estratificadas por média e alta complexidade.
 
 De modo geral, observa-se uma expressiva disparidade nas taxas entre as
-Regiões de Saúde do país. Essa diferença tende a ser menor nas
-internações de média complexidade e mais acentuada nas internações de
-alta complexidade.
+Regiões de Saúde do país. Essa diferença apresentou-se em menor dimensão
+nas internações de média complexidade e mais acentuada nas internações
+de alta complexidade.
 
 As maiores taxas concentram-se com mais frequência nas regiões Sul e
-Sudeste, principalmente quando analisamos a alta complexidade. No
-Nordeste, algumas Regiões de Saúde que abrigam grandes centros urbanos e
-capitais também aparecem entre aquelas com taxas mais elevadas de
-internações de alta complexidade.
+Sudeste, principalmente quando analisamos o recorte da alta
+complexidade. No Nordeste, algumas Regiões de Saúde que abrigam grandes
+centros urbanos e capitais também aparecem entre aquelas com taxas mais
+elevadas de internações de alta complexidade.
 
-Cabe ressaltar que o mapa, por si só, não permite concluir se
-determinada região possui oferta excessiva ou insuficiente de serviços
-hospitalares. As diferenças encontradas podem estar relacionadas a
-diversos fatores, como perfil epidemiológico, estrutura etária da
-população, disponibilidade de serviços, acesso, capacidade de regulação,
-organização da atenção primária e características da rede hospitalar.
+É importante destacar que o mapa, por si só, não permite concluir se
+determinada região possui oferta adequada, excessiva ou insuficiente de
+serviços hospitalares. As diferenças encontradas podem estar
+relacionadas a diversos fatores, como perfil epidemiológico, estrutura
+etária da população, disponibilidade de serviços, dificuldades físicas
+de acesso, capacidade de regulação assistencial, organização da atenção
+primária e características próprias da rede hospitalar.
 
 O objetivo, portanto, não é classificar as regiões entre “adequadas” ou
 “inadequadas”, mas utilizar essas assimetrias como ponto de partida para
@@ -90,11 +90,10 @@ novos questionamentos:
 
 **Por que determinada região apresenta uma taxa muito maior que outra?
 Essa diferença está relacionada a uma maior necessidade da população?
-Decorre da maior oferta de serviços e capacidade instalada? Deriva da
-atração de pacientes de outros territórios? Ou decorre da própria
-dinâmica de organização e regulação da rede assistencial?**
+Decorre da maior oferta de serviços e capacidade instalada? Ou decorre
+da própria dinâmica de organização e regulação da rede assistencial?**
 
-## Como essa analise foi construída com o R?
+## Como essa análise foi construída em R?
 
 O fluxo foi construído em R utilizando o pacote `dtsus` para obtenção
 dos dados do SIH/SUS e da população beneficiária de planos de saúde,
@@ -119,13 +118,14 @@ Data_inicio = 202501,Data_fim = 202512)
 
 2.  **Identificação da Região de Saúde de residência dos pacientes**
 
-Os municípios de residência foram relacionados às respectivas Regiões de
-Saúde a partir da divisão territorial utilizada na análise.
+Os municípios de residência registrados no SIH/SUS foram associados às
+respectivas Regiões de Saúde a partir do código do município e da
+divisão territorial de saúde adotada em cada estado.
 
 3.  **Classificação das internações em média e alta complexidade**
 
-A classificação foi realizada a partir das informações disponíveis no
-SIH/SUS.
+A classificação da complexidade das internações foi obtida a partir das
+informações disponíveis no SIH/SUS.
 
 4.  **Obtenção da população estimada pelo IBGE**
 
