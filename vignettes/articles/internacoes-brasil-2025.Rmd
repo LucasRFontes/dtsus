@@ -69,7 +69,8 @@ De forma resumida, o processo envolveu as seguintes etapas:
 
 1. **Obtenção das internações aprovadas no SIH/SUS para 2025**
 
- Os dados foram obtidos com a função `dtsus_download()`.
+Os dados foram obtidos com a função `dtsus_download()`.
+O exemplo abaixo baixa os dados de Minas Gerais. Para o mapa nacional, o mesmo procedimento foi repetido para as 27 UFs e os resultados     foram empilhados em uma única base.
 
  Exemplo:
 
@@ -100,7 +101,7 @@ Para essa etapa foi utilizada a função `dtsus_pop_ans()`.
 
    ```r
    dtsus_pop_ans(
-     competencia = 202512,
+     ano_mes = 202512,
      uf = "MG"
    )
    ```
@@ -108,7 +109,7 @@ Para essa etapa foi utilizada a função `dtsus_pop_ans()`.
 6. **Estimativa da população SUS dependente**
 
 A população SUS dependente foi estimada pela diferença entre a população total e a população beneficiária de planos com cobertura hospitalar.
-   
+
    ```r
    populacao_sus <- populacao_total - populacao_plano_hospitalar
    ```
@@ -128,6 +129,4 @@ A visualização foi construída com o pacote `leaflet`, permitindo alternar ent
 
 Com esse fluxo, foi possível integrar diferentes fontes de dados e construir uma medida comparável entre as Regiões de Saúde do país.
 
-```{r setup}
-library(dtsus)
-```
+

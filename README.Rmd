@@ -3,121 +3,138 @@ title: dtsus
 output: github_document
 ---
 
-[![remotes](https://img.shields.io/badge/install%20with-remotes-blue)](https://github.com/LucasRFontes/dtsus)
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![R >= 3.5](https://img.shields.io/badge/R-%3E%3D%203.5-blue)](https://cran.r-project.org/)
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/LucasRFontes/dtsus/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LucasRFontes/dtsus/actions/workflows/R-CMD-check.yaml)
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![GitHub issues](https://img.shields.io/badge/issues-feedback-red)](https://github.com/LucasRFontes/dtsus/issues)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
-Um pacote R para facilitar o acesso e a preparação de dados públicos utilizados em análises do Sistema Único de Saúde (SUS).
+<!-- badges: end -->
 
-O **dtsus** foi desenvolvido inicialmente para simplificar o acesso aos microdados públicos disponibilizados pelo DATASUS. O pacote permite baixar, salvar e ler arquivos, com aplicação prévia de filtros e seleção de colunas. Essa abordagem torna o processo mais eficiente e reduz o processamento desnecessário.
+<p class="lead">
+Acesse, baixe, filtre e leia dados públicos de saúde do Brasil com poucas linhas de R.
+</p>
 
-Além dos microdados do DATASUS, o pacote também incorpora o acesso a fontes complementares relevantes para análises em saúde. Entre elas, estão os dados consolidados de beneficiários de planos de saúde disponibilizados pela Agência Nacional de Saúde Suplementar (ANS).
+O **dtsus** reúne em uma única função etapas que normalmente exigem diferentes operações: localizar os arquivos disponibilizados pelo DATASUS, baixar, converter arquivos `.dbc`, selecionar colunas e filtrar registros.
 
-O **dtsus** mantém explícito o que foi efetivamente realizado na extração e preparação dos dados, favorecendo fluxos de trabalho reprodutíveis e garantindo maior transparência e controle sobre as etapas executadas.
+Os filtros e a seleção de colunas podem ser aplicados durante a leitura, reduzindo o uso de memória e o processamento desnecessário em bases de grande volume.
+
+### Por que usar?
+
+- **Menos código:** uma chamada a `dtsus_download()` pode reunir download, leitura, filtro e seleção de variáveis.
+- **Eficiência:** permite carregar apenas as colunas e os registros necessários para a análise.
+- **Reprodutibilidade:** os parâmetros utilizados na obtenção e preparação dos dados permanecem explícitos no código.
+- **Além do DATASUS:** inclui também acesso a dados consolidados de beneficiários de planos de saúde disponibilizados pela Agência Nacional de Saúde Suplementar (ANS).
 
 ---
 
 ## Instalação
-[![install with remotes](https://img.shields.io/badge/install%20with-remotes-blue)](https://github.com/LucasRFontes/dtsus)
 
-O pacote **dtsus** depende do pacote `read.dbc`, que não está disponível no CRAN.
+O `dtsus` ainda não está disponível no CRAN e depende do pacote `read.dbc`.
 
-Primeiro, instale a dependência:
+Primeiro, instale o pacote `remotes`:
 
 ```r
 install.packages("remotes")
+```
 
-# Instalar read.dbc
+Em seguida, instale o `read.dbc`:
+
+```r
 remotes::install_github("danicat/read.dbc")
 ```
 
-Em seguida, instale o **dtsus**:
+Por fim, instale o `dtsus`:
 
 ```r
-# Instalar dtsus
 remotes::install_github("LucasRFontes/dtsus")
+```
+
+Para carregar o pacote:
+
+```r
+library(dtsus)
 ```
 
 ---
 
-## Exemplos
+## Comece em 2 minutos
 
-### 📌 1. Leitos cadastrados no CNES (RJ – Janeiro/2023)
-
-Download da base de leitos do Cadastro Nacional de Estabelecimentos de Saúde (CNES) referente ao estado do Rio de Janeiro, para a competência de janeiro de 2023:
+Por exemplo, para obter os dados de leitos cadastrados no Cadastro Nacional de Estabelecimentos de Saúde (CNES) do Rio de Janeiro, na competência de janeiro de 2023:
 
 ```r
 library(dtsus)
 
-CNES <- dtsus_download(
+res <- dtsus_download(
   fonte = "CNES",
   tipo = "LT",
   uf = "RJ",
   Data_inicio = 202301
 )
 
-files <- CNES$files  # arquivos baixados
-dados <- CNES$data   # base de dados carregada
+head(res$data)
 ```
+
+A função retorna uma lista contendo os arquivos obtidos e, quando solicitado o carregamento, a base de dados processada:
+
+| Elemento | Conteúdo |
+| --- | --- |
+| `res$files` | Caminhos dos arquivos baixados |
+| `res$data` | Base de dados carregada no R, quando `open = TRUE` |
 
 ---
 
-### 📌 2. Internações Hospitalares (PA – Nov/2024 a Fev/2025)
+## Fontes de dados
 
-Download dos dados de Internação do Sistema de Informações Hospitalares (SIH) para o estado do Pará, no período de novembro de 2024 a fevereiro de 2025, selecionando apenas as colunas *CNES*, *Diagnóstico Principal* e *Município de Residência*:
+O `dtsus` permite acessar diferentes bases públicas disponibilizadas pelo DATASUS, abrangendo diversos sistemas de informação em saúde.
+
+Entre as fontes que podem ser utilizadas estão, por exemplo:
+
+| Fonte | Conteúdo |
+| --- | --- |
+| **SIH/SUS** | Informações hospitalares |
+| **SIA/SUS** | Produção ambulatorial |
+| **SIM** | Informações sobre mortalidade |
+| **CNES** | Estabelecimentos, leitos e outros dados da rede assistencial |
+
+Essas são apenas algumas das bases disponíveis. A função `dtsus_download()` foi desenvolvida para facilitar o acesso aos diferentes arquivos disponibilizados pelo DATASUS, de acordo com a fonte, o tipo de arquivo, a unidade federativa e o período informados.
+
+Além das bases do DATASUS, o pacote também possui funções para acesso a outras fontes de dados utilizadas em análises de saúde. Atualmente, `dtsus_pop_ans()` permite obter dados consolidados de beneficiários de planos de saúde disponibilizados pela Agência Nacional de Saúde Suplementar (ANS).
+
+A disponibilidade dos dados e dos tipos de arquivo pode variar conforme a fonte e o período consultado.
+
+---
+
+## Exemplos
+
+### Selecionar colunas
+
+Internações hospitalares do Pará, entre novembro de 2024 e fevereiro de 2025, mantendo apenas três variáveis:
 
 ```r
-library(dtsus)
-
 SIH <- dtsus_download(
   fonte = "SIH",
   tipo = "RD",
+  uf = "PA",
   Data_inicio = 202411,
   Data_fim = 202502,
-  uf = "PA",
-  colunas = c("CNES", "DIAG_PRINC", "MUNIC_RES")
+  colunas = c(
+    "CNES",
+    "DIAG_PRINC",
+    "MUNIC_RES"
+  )
 )
 
-files <- SIH$files  # arquivos baixados
+dados <- SIH$data
 ```
 
-### 📌 3. Informações sobre Mortalidade (MG – 2020)
+Dessa forma, apenas as variáveis especificadas em `colunas` são mantidas na base carregada.
 
-Download dos dados do Sistema de Informações sobre Mortalidade (SIM) de Minas Gerais, referentes ao ano de 2020.
+### Filtrar registros
 
-Neste exemplo:
-
-- O download é realizado, mas os dados **não são carregados no R** (`open = FALSE`).
-- Os arquivos são salvos no formato original `.dbc` (`save.dbc = TRUE`).
-- É possível definir o diretório onde os arquivos serão armazenados por meio do argumento `pasta.dbc` (`pasta.dbc = "caminho/da/pasta"`).
+Produção ambulatorial do estado de São Paulo, entre setembro e dezembro de 2024, mantendo apenas procedimentos específicos:
 
 ```r
-library(dtsus)
-
-SIM <- dtsus_download(
-  fonte = "SIM",
-  tipo = "DO",
-  uf = "MG",
-  Data_inicio = 2020,
-  open = FALSE,
-  save.dbc = TRUE
-)
-```
-
-### 📌 4. Produção Ambulatorial (SIA – SP – Set/2024 a Dez/2024)
-
-Download dos dados de Produção Ambulatorial do Sistema de Informações Ambulatoriais (SIA) para o estado de São Paulo, de setembro a dezembro de 2024, aplicando:
-
-- Filtro para procedimentos específicos (`PA_PROC_ID`)
-- Seleção de colunas
-- Salvamento dos arquivos no formato `.dbc`
-- Carregamento automático da base de dados no R
-
-```r
-library(dtsus)
-
 SIA <- dtsus_download(
   fonte = "SIA",
   tipo = "PA",
@@ -128,50 +145,146 @@ SIA <- dtsus_download(
     coluna = "PA_PROC_ID",
     valor = c("0301060096", "0301060037")
   ),
-  open = TRUE,
-  save.dbc = TRUE,
   colunas = c(
     "PA_PROC_ID",
     "PA_CODUNI",
     "PA_QTDAPR",
     "PA_QTDPRO"
-  ),
-  pasta.dbc = "Arquivo"
+  )
 )
 
 dados <- SIA$data
 ```
 
----
+O filtro é aplicado durante o processamento, evitando a necessidade de carregar toda a base para posteriormente selecionar os registros de interesse.
 
-### 📌 5. Beneficiários de planos de saúde da ANS (MG – Março/2024)
+### Baixar sem carregar no R
 
-Download dos dados consolidados de beneficiários de planos de saúde disponibilizados pela Agência Nacional de Saúde Suplementar (ANS), para Minas Gerais, na competência de março de 2024:
+Também é possível apenas realizar o download dos arquivos, sem carregar os dados na memória.
+
+No exemplo abaixo, são obtidos os dados do Sistema de Informações sobre Mortalidade (SIM) de Minas Gerais referentes a 2020:
 
 ```r
-library(dtsus)
+SIM <- dtsus_download(
+  fonte = "SIM",
+  tipo = "DO",
+  uf = "MG",
+  Data_inicio = 2020,
+  open = FALSE,
+  save.dbc = TRUE,
+  pasta.dbc = "caminho/da/pasta"
+)
+```
 
+Com `open = FALSE`, os dados não são carregados no R.
+
+O argumento `save.dbc = TRUE` permite manter os arquivos `.dbc` originais, enquanto `pasta.dbc` define o diretório onde eles serão armazenados.
+
+### Beneficiários de planos de saúde
+
+O `dtsus` também permite obter dados consolidados de beneficiários de planos de saúde disponibilizados pela Agência Nacional de Saúde Suplementar (ANS).
+
+Por exemplo, para Minas Gerais na competência de março de 2024:
+
+```r
 ANS <- dtsus_pop_ans(
   ano_mes = "202403",
   uf = "MG"
-)f = "MG"
 )
+```
 
-A competência deve ser informada no formato AAAAMM e a função retorna um data.frame com os dados disponibilizados pela ANS para a unidade federativa selecionada.
+A competência deve ser informada no formato `AAAAMM`.
 
-Para exibir a barra de progresso durante o download, utilize:
+Para exibir informações sobre o progresso durante a obtenção dos dados:
 
+```r
 ANS <- dtsus_pop_ans(
   ano_mes = "202403",
   uf = "MG",
   quiet = FALSE
 )
+```
 
-## Observações
+---
 
-- Os microdados dos sistemas de informação do SUS são obtidos diretamente das bases públicas do DATASUS.
-- Os dados de beneficiários de planos de saúde são obtidos diretamente da base pública de dados abertos da Agência Nacional de Saúde Suplementar (ANS).
-- A disponibilidade pode variar conforme o sistema e período.
-- O pacote utiliza internamente o pacote `read.dbc` para leitura dos arquivos .dbc
+## Principais argumentos de `dtsus_download()`
 
-Agradecimento aos desenvolvedores do pacote `read.dbc`, que viabilizam a leitura eficiente dos dados do DATASUS no R.
+| Argumento | Descrição |
+| --- | --- |
+| `fonte` | Sistema de informação, como `"SIH"`, `"SIA"`, `"SIM"` ou `"CNES"` |
+| `tipo` | Tipo de arquivo dentro do sistema, como `"RD"`, `"PA"`, `"DO"` ou `"LT"` |
+| `uf` | Sigla da unidade federativa |
+| `Data_inicio` | Competência ou ano inicial |
+| `Data_fim` | Competência ou ano final |
+| `colunas` | Vetor contendo as variáveis que devem ser mantidas |
+| `filtro` | Lista contendo a coluna e os valores utilizados para filtrar registros |
+| `open` | Define se os dados serão carregados no R |
+| `save.dbc` | Define se os arquivos `.dbc` originais serão mantidos |
+| `pasta.dbc` | Define o diretório para armazenamento dos arquivos `.dbc` |
+
+Consulte a documentação completa da função em [`dtsus_download()`](https://lucasrfontes.github.io/dtsus/reference/dtsus_download.html).
+
+---
+
+## Principais funções
+
+Além de `dtsus_download()`, o pacote possui funções destinadas a outras etapas do fluxo de trabalho:
+
+- `dtsus_download()` — download e preparação dos dados;
+- `dtsus_load()` — leitura de arquivos já baixados;
+- `dtsus_refresh()` — atualização dos dados;
+- `dtsus_pop_ans()` — obtenção dos dados de beneficiários de planos de saúde da ANS.
+
+A documentação detalhada está disponível na seção **Reference** do site.
+
+---
+
+## Estudos de caso
+
+O pacote também é utilizado na construção de análises aplicadas aos dados do Sistema Único de Saúde.
+
+### Internações hospitalares no Brasil em 2025
+
+Análise das diferenças nas taxas de internação entre as Regiões de Saúde do Brasil, com visualização interativa das internações totais e das internações de média e alta complexidade.
+
+[**Acessar o estudo e o mapa interativo →**](https://lucasrfontes.github.io/dtsus/articles/internacoes-brasil-2025.html)
+
+---
+
+## Limitações e observações
+
+- Os microdados dos sistemas de informação do SUS são obtidos a partir das bases públicas disponibilizadas pelo DATASUS.
+- Os dados de beneficiários de planos de saúde são obtidos a partir dos dados abertos disponibilizados pela Agência Nacional de Saúde Suplementar (ANS).
+- A disponibilidade dos arquivos pode variar conforme o sistema, o tipo de base e o período.
+- Arquivos disponibilizados pelas fontes de origem podem ficar temporariamente indisponíveis.
+- Consulte os dicionários de dados e as notas técnicas das fontes antes de interpretar as variáveis.
+- A leitura dos arquivos `.dbc` utiliza o pacote [`read.dbc`](https://github.com/danicat/read.dbc).
+
+---
+
+## Contribuindo
+
+Encontrou algum erro ou tem uma sugestão?
+
+Utilize as [issues do projeto](https://github.com/LucasRFontes/dtsus/issues) para relatar problemas ou propor melhorias.
+
+Contribuições são bem-vindas.
+
+---
+
+## Autores
+
+- **Lucas Fontes** — autor e mantenedor
+- **Raquel Schneider** — autora
+
+---
+
+## Licença
+
+O `dtsus` é distribuído sob a licença [AGPL-3](https://www.gnu.org/licenses/agpl-3.0).
+
+---
+
+## Agradecimentos
+
+Agradecimento aos desenvolvedores do pacote [`read.dbc`](https://github.com/danicat/read.dbc), que viabiliza a leitura eficiente dos arquivos `.dbc` disponibilizados pelo DATASUS no R.

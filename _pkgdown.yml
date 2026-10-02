@@ -21,7 +21,6 @@ navbar:
     left:
       - home
       - reference
-      - articles
       - estudos
       - news
 
