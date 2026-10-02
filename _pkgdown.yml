@@ -2,6 +2,19 @@ url: https://lucasrfontes.github.io/dtsus/
 
 template:
   bootstrap: 5
+  bslib:
+    bg: "#ffffff"
+    fg: "#263238"
+    primary: "#1D5D8C"
+    navbar-bg: "#123B5D"
+    navbar-light-color: "#ffffff"
+    navbar-light-hover-color: "#ffffff"
+    border-radius: 0.5rem
+  includes:
+    in_header: |
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 navbar:
   structure:
