@@ -48,13 +48,15 @@ R, o pacote R `dtsus` já permitia baixar, de forma simples e ágil, os
 dados do Sistema de Informações Hospitalares do SUS — SIH/SUS, onde
 constam os registros das internações aprovadas em todo o Brasil.
 
-Mais recentemente,também foi adicionada ao pacote uma função que permite
-baixar diretamente os dados da população beneficiária de planos de
-saúde. Foi a partir do cruzamento dessas informações com os dados
+Mais recentemente, também foi adicionada ao pacote uma função que
+permite baixar diretamente os dados da população beneficiária de planos
+de saúde. Foi a partir do cruzamento dessas informações com os dados
 populacionais que foi construído o mapa abaixo, apresentando as taxas de
 internação nas Regiões de Saúde de todo o país.
 
 ## Mapa interativo
+
+⛶ Tela cheia
 
 ## O que os dados mostram?
 

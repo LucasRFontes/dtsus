@@ -118,7 +118,7 @@ computacional R, o pacote R <code>dtsus</code> já permitia baixar, de
 forma simples e ágil, os dados do Sistema de Informações Hospitalares do
 SUS — SIH/SUS, onde constam os registros das internações aprovadas em
 todo o Brasil.</p>
-<p>Mais recentemente,também foi adicionada ao pacote uma função que
+<p>Mais recentemente, também foi adicionada ao pacote uma função que
 permite baixar diretamente os dados da população beneficiária de planos
 de saúde. Foi a partir do cruzamento dessas informações com os dados
 populacionais que foi construído o mapa abaixo, apresentando as taxas de
@@ -127,7 +127,11 @@ internação nas Regiões de Saúde de todo o país.</p>
 <div class="section level2">
 <h2 id="mapa-interativo">Mapa interativo<a class="anchor" aria-label="anchor" href="#mapa-interativo"></a>
 </h2>
-<iframe src="../mapas/internacoes-brasil-2025/index.html" width="100%" height="760" style="border:0;">
+<div style="text-align: right; margin-bottom: 8px;">
+<p><button onclick="document.getElementById('mapa-brasil').requestFullscreen()" style="padding: 7px 14px; cursor: pointer;"> ⛶ Tela cheia
+</button></p>
+</div>
+<iframe id="mapa-brasil" src="../mapas/internacoes-brasil-2025/index.html" width="100%" height="760" style="border:0;" allowfullscreen>
 </iframe>
 </div>
 <div class="section level2">
